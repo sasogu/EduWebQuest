@@ -20,6 +20,8 @@ const formPanel = document.querySelector(".panel--form");
 const previewPanel = document.querySelector(".panel--preview");
 const layoutResizer = document.querySelector(".layout__resizer");
 
+const SERVICE_WORKER_VERSION = "v1.0.0";
+
 const defaultState = {
   title: "Exploradores del Sistema Solar",
   subtitle: "Un viaje colaborativo para comprender nuestro vecindario cósmico",
@@ -1808,6 +1810,21 @@ function enhanceAccessibility() {
   });
 }
 
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) {
+    return;
+  }
+  const versionParam = encodeURIComponent(SERVICE_WORKER_VERSION);
+  const swUrl = `service-worker.js?v=${versionParam}`;
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register(swUrl)
+      .catch((error) => {
+        console.warn("No se pudo registrar el Service Worker:", error);
+      });
+  });
+}
+
 function init() {
   restoreDraftFromStorage();
   syncForm();
@@ -1833,6 +1850,7 @@ function init() {
   }
   setupResizableLayout();
   enhanceAccessibility();
+  registerServiceWorker();
 }
 
 document.addEventListener("DOMContentLoaded", init);
