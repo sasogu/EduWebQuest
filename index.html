@@ -24,6 +24,11 @@
         <button id="btn-download" class="action-btn action-btn--primary" type="button">
           Descargar WebQuest
         </button>
+        <button id="btn-download-moodle" class="action-btn" type="button">
+          Descargar para Moodle
+        </button>
+        <button id="btn-save-draft" class="action-btn" type="button">Guardar borrador</button>
+        <button id="btn-load-draft" class="action-btn" type="button">Cargar borrador</button>
       </div>
     </header>
 
@@ -157,7 +162,13 @@
           </fieldset>
         </form>
       </section>
-
+      <div
+        class="layout__resizer"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Ajustar ancho de la vista previa"
+        tabindex="0"
+      ></div>
       <section class="panel panel--preview">
         <div class="preview-wrapper">
           <h2>Vista previa en vivo</h2>
@@ -183,51 +194,64 @@
               --muted: #525760;
               font-size: 16px;
             }
-            *, *::before, *::after {
+            *,
+            *::before,
+            *::after {
               box-sizing: border-box;
             }
             body {
               margin: 0;
               font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
               color: var(--text);
-              background: radial-gradient(circle at top, var(--primary-transparent), transparent 55%) no-repeat,
+              background: radial-gradient(circle at top, var(--primary-transparent), transparent 60%) no-repeat,
                 #f3f4f9;
+              min-height: 100vh;
+              display: flex;
+              flex-direction: column;
             }
-            header {
+            .hero {
               background: linear-gradient(120deg, var(--primary), #3f88ff);
               color: #fff;
-              padding: 4rem 1.5rem;
+              padding: 4rem 1.5rem 6rem;
               text-align: center;
               position: relative;
               overflow: hidden;
             }
-            header::after {
+            .hero::after {
               content: '';
               position: absolute;
               inset: -30% -10% auto;
               height: 65%;
-              background: radial-gradient(circle, rgba(255,255,255,0.25), transparent 70%);
-              opacity: 0.7;
+              background: radial-gradient(circle, rgba(255, 255, 255, 0.28), transparent 70%);
+              opacity: 0.6;
             }
-            header h1 {
+            .hero__content {
+              position: relative;
+              z-index: 1;
+              width: min(980px, calc(100% - 2rem));
+              margin: 0 auto;
+            }
+            .hero__content h1 {
               margin: 0 auto 0.75rem;
-              max-width: 26rem;
-              font-size: clamp(2.5rem, 5vw, 3.2rem);
+              max-width: 28rem;
+              font-size: clamp(2.6rem, 6vw, 3.4rem);
               font-family: 'Playfair Display', Georgia, serif;
               letter-spacing: -0.02em;
             }
-            header p {
+            .hero__content p {
               margin: 0 auto;
-              max-width: 34rem;
-              font-size: 1.05rem;
-              line-height: 1.6;
+              max-width: 36rem;
+              font-size: 1.08rem;
+              line-height: 1.7;
             }
             .hero-image {
               margin: 2.5rem auto 0;
               width: min(92%, 960px);
-              border-radius: 20px;
+              border-radius: 22px;
               overflow: hidden;
-              box-shadow: 0 20px 45px -30px rgba(15, 23, 42, 0.6);
+              box-shadow: 0 22px 55px -28px rgba(15, 23, 42, 0.75);
+              position: relative;
+              z-index: 1;
             }
             .hero-image img {
               display: block;
@@ -235,27 +259,87 @@
               height: 320px;
               object-fit: cover;
             }
-            main {
-              width: min(960px, calc(100% - 3rem));
+            .main-layout {
+              width: min(1120px, calc(100% - 3rem));
               margin: -3.5rem auto 3.5rem;
               display: grid;
-              gap: 1.75rem;
+              grid-template-columns: 260px minmax(0, 1fr);
+              gap: 2.5rem;
             }
-            section {
+            .sidebar {
               background: var(--surface);
               border-radius: 22px;
-              padding: 2.5rem;
-              box-shadow: 0 22px 50px -35px rgba(18, 22, 33, 0.8);
+              padding: 2rem 1.75rem;
+              box-shadow: 0 22px 55px -40px rgba(18, 22, 33, 0.8);
+              position: sticky;
+              top: 1.75rem;
+              align-self: start;
             }
-            section h2 {
-              margin-top: 0;
+            .sidebar h2 {
+              margin: 0 0 1.5rem;
+              font-size: 1.2rem;
+              font-weight: 600;
+              color: var(--text);
+            }
+            .sidebar ul {
+              list-style: none;
+              margin: 0;
+              padding: 0;
+              display: grid;
+              gap: 0.75rem;
+            }
+            .sidebar a {
+              display: block;
+              padding: 0.85rem 1rem;
+              border-radius: 14px;
+              text-decoration: none;
+              color: var(--muted);
+              font-weight: 600;
+              letter-spacing: 0.01em;
+              transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+            }
+            .sidebar a:hover {
+              transform: translateX(4px);
+              color: var(--text);
+              background: rgba(67, 85, 250, 0.12);
+            }
+            .sidebar a.is-active {
+              background: var(--primary);
+              color: #fff;
+              box-shadow: 0 16px 30px -18px rgba(67, 85, 250, 0.65);
+            }
+            .pages {
+              display: flex;
+              flex-direction: column;
+              gap: 1.75rem;
+            }
+            .page {
+              display: none;
+              background: var(--surface);
+              border-radius: 24px;
+              padding: 2.5rem;
+              box-shadow: 0 24px 60px -38px rgba(18, 22, 33, 0.85);
+              animation: fadeIn 0.35s ease both;
+            }
+            .page.is-active {
+              display: block;
+            }
+            .page h2 {
+              margin: 0 0 1.5rem;
               font-size: 1.75rem;
               font-weight: 600;
             }
-            p, li {
+            .page__body p,
+            .page__body li {
               font-size: 1.05rem;
-              line-height: 1.7;
+              line-height: 1.75;
               color: var(--muted);
+            }
+            .page__body p {
+              margin: 0 0 1.1rem;
+            }
+            .page__body p:last-child {
+              margin-bottom: 0;
             }
             ol.process {
               counter-reset: step;
@@ -265,7 +349,7 @@
             }
             ol.process li {
               position: relative;
-              padding: 0 0 0 3.5rem;
+              padding: 0 0 0 3.4rem;
               margin-bottom: 1.5rem;
             }
             ol.process li::before {
@@ -280,23 +364,31 @@
               place-items: center;
               font-weight: 600;
               color: var(--primary);
-              background: rgba(67, 85, 250, 0.08);
+              background: rgba(67, 85, 250, 0.1);
               border-radius: 14px;
             }
             .resource-grid {
               display: grid;
-              gap: 1rem;
+              gap: 1.2rem;
               grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             }
             .resource-card {
-              border: 1px solid rgba(67, 85, 250, 0.12);
+              border: 1px solid rgba(67, 85, 250, 0.15);
               border-radius: 16px;
-              padding: 1.25rem;
+              padding: 1.4rem;
               background: var(--surface-alt);
-              transition: transform 0.25s ease;
+              transition: transform 0.25s ease, box-shadow 0.25s ease;
             }
             .resource-card:hover {
               transform: translateY(-6px);
+              box-shadow: 0 18px 40px -30px rgba(18, 22, 33, 0.4);
+            }
+            .resource-card h3 {
+              margin: 0 0 0.65rem;
+              font-size: 1.1rem;
+            }
+            .resource-card p {
+              margin: 0 0 0.5rem;
             }
             .resource-card a {
               display: inline-flex;
@@ -306,17 +398,81 @@
               font-weight: 600;
               text-decoration: none;
             }
+            .page__nav {
+              margin-top: 2.25rem;
+              display: flex;
+              justify-content: flex-end;
+            }
+            .page__next {
+              display: inline-flex;
+              align-items: center;
+              gap: 0.6rem;
+              font-weight: 600;
+              color: var(--primary);
+              text-decoration: none;
+              background: rgba(67, 85, 250, 0.12);
+              padding: 0.75rem 1.3rem;
+              border-radius: 999px;
+              transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+            }
+            .page__next span {
+              font-size: 1.35rem;
+              line-height: 1;
+            }
+            .page__next:hover {
+              transform: translateX(6px);
+              background: var(--primary);
+              color: #fff;
+              box-shadow: 0 16px 32px -20px rgba(67, 85, 250, 0.65);
+            }
             footer {
               text-align: center;
-              margin: 4rem auto 3rem;
+              margin: 2.5rem auto 3rem;
               color: rgba(31, 35, 40, 0.6);
               font-size: 0.95rem;
             }
-            @media (max-width: 720px) {
-              header {
-                padding: 3.5rem 1.2rem;
+            @keyframes fadeIn {
+              from {
+                opacity: 0;
+                transform: translateY(12px);
               }
-              section {
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            @media (max-width: 1024px) {
+              .main-layout {
+                grid-template-columns: 1fr;
+              }
+              .sidebar {
+                position: static;
+                padding: 1.25rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+              }
+              .sidebar ul {
+                display: flex;
+                gap: 0.8rem;
+                overflow-x: auto;
+                padding-bottom: 0.3rem;
+              }
+              .sidebar li {
+                flex: 0 0 auto;
+              }
+              .sidebar a {
+                white-space: nowrap;
+              }
+            }
+            @media (max-width: 720px) {
+              .hero {
+                padding: 3.5rem 1.25rem 5rem;
+              }
+              .hero-image img {
+                height: 240px;
+              }
+              .page {
                 padding: 2rem 1.5rem;
               }
             }
@@ -336,79 +492,154 @@
           />
         </head>
         <body>
-          <header>
-            <h1>{{title}}</h1>
-            {{#subtitle}}<p>{{subtitle}}</p>{{/subtitle}}
+          <header class="hero">
+            <div class="hero__content">
+              <h1>{{title}}</h1>
+              {{#subtitle}}<p>{{subtitle}}</p>{{/subtitle}}
+            </div>
             {{#heroImage}}
             <div class="hero-image">
               <img src="{{heroImage}}" alt="">
             </div>
             {{/heroImage}}
           </header>
-          <main>
-            <section>
-              <h2>Introducción</h2>
-              {{{introduction}}}
-            </section>
-            <section>
-              <h2>Tarea</h2>
-              {{{task}}}
-            </section>
-            {{#hasProcess}}
-            <section>
-              <h2>Proceso</h2>
-              <ol class="process">
-                {{#process}}
-                <li>{{.}}</li>
-                {{/process}}
-              </ol>
-            </section>
-            {{/hasProcess}}
-            {{#hasResources}}
-            <section>
-              <h2>Recursos</h2>
-              <div class="resource-grid">
-                {{#resources}}
-                <article class="resource-card">
-                  <h3>{{title}}</h3>
-                  {{#notes}}<p>{{notes}}</p>{{/notes}}
-                  <a href="{{link}}" target="_blank" rel="noopener">
-                    Visitar recurso
-                    <span aria-hidden="true">↗</span>
+          <main class="main-layout">
+            <nav class="sidebar" aria-label="Secciones de la WebQuest">
+              <h2>Secciones</h2>
+              <ul>
+                {{#sections}}
+                <li><a href="#{{id}}" data-section-target="{{id}}">{{title}}</a></li>
+                {{/sections}}
+              </ul>
+            </nav>
+            <div class="pages">
+              {{#sections}}
+              <article class="page" data-section="{{id}}" id="{{id}}">
+                <h2>{{title}}</h2>
+                {{#isRich}}
+                <div class="page__body">
+                  {{{body}}}
+                </div>
+                {{/isRich}}
+                {{#isProcess}}
+                <ol class="process">
+                  {{#process}}
+                  <li>{{{.}}}</li>
+                  {{/process}}
+                </ol>
+                {{/isProcess}}
+                {{#isResources}}
+                <div class="resource-grid">
+                  {{#resources}}
+                  <article class="resource-card">
+                    <h3>{{title}}</h3>
+                    {{#notes}}<p>{{notes}}</p>{{/notes}}
+                    <a href="{{link}}" target="_blank" rel="noopener">
+                      Visitar recurso
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  </article>
+                  {{/resources}}
+                </div>
+                {{/isResources}}
+                {{#next}}
+                <div class="page__nav">
+                  <a class="page__next" href="#{{id}}" data-next-target="{{id}}">
+                    Siguiente: {{label}} <span aria-hidden="true">&rarr;</span>
                   </a>
-                </article>
-                {{/resources}}
-              </div>
-            </section>
-            {{/hasResources}}
-            {{#evaluation}}
-            <section>
-              <h2>Evaluación</h2>
-              {{{evaluation}}}
-            </section>
-            {{/evaluation}}
-            {{#conclusion}}
-            <section>
-              <h2>Conclusión</h2>
-              {{{conclusion}}}
-            </section>
-            {{/conclusion}}
-            {{#teacher_notes}}
-            <section>
-              <h2>Notas para el profesorado</h2>
-              {{{teacher_notes}}}
-            </section>
-            {{/teacher_notes}}
+                </div>
+                {{/next}}
+              </article>
+              {{/sections}}
+            </div>
           </main>
           {{#credits}}
           <footer>
             <p>Creado por {{credits}}</p>
           </footer>
           {{/credits}}
+          <script>
+            (function () {
+              const contentSections = Array.from(document.querySelectorAll('[data-section]'));
+              const navLinks = Array.from(document.querySelectorAll('.sidebar [data-section-target]'));
+              const nextLinks = Array.from(document.querySelectorAll('[data-next-target]'));
+              if (!contentSections.length) {
+                return;
+              }
+
+              function activate(targetId, { scroll = false } = {}) {
+                let current = contentSections.find((section) => section.dataset.section === targetId);
+                if (!current) {
+                  current = contentSections[0];
+                }
+                if (!current) {
+                  return "";
+                }
+                contentSections.forEach((section) => {
+                  section.classList.toggle('is-active', section === current);
+                });
+                navLinks.forEach((link) => {
+                  const isActive = link.dataset.sectionTarget === current.dataset.section;
+                  link.classList.toggle('is-active', isActive);
+                  if (isActive) {
+                    link.setAttribute('aria-current', 'page');
+                  } else {
+                    link.removeAttribute('aria-current');
+                  }
+                });
+                if (scroll) {
+                  current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                return current.dataset.section;
+              }
+
+              function goTo(targetId, options = {}) {
+                const activeId = activate(targetId, options);
+                if (activeId) {
+                  window.history.replaceState(null, '', `#${encodeURIComponent(activeId)}`);
+                }
+              }
+
+              function normalizeHash(hash) {
+                if (!hash) return '';
+                return decodeURIComponent(hash.replace('#', '').trim());
+              }
+
+              function handleHashChange() {
+                const id = normalizeHash(window.location.hash);
+                if (id) {
+                  activate(id, { scroll: true });
+                }
+              }
+
+              navLinks.forEach((link) => {
+                link.addEventListener('click', (event) => {
+                  event.preventDefault();
+                  const targetId = link.dataset.sectionTarget;
+                  goTo(targetId, { scroll: true });
+                });
+              });
+
+              nextLinks.forEach((link) => {
+                link.addEventListener('click', (event) => {
+                  event.preventDefault();
+                  const targetId = link.dataset.nextTarget;
+                  goTo(targetId, { scroll: true });
+                });
+              });
+
+              window.addEventListener('hashchange', handleHashChange);
+              const initialId =
+                normalizeHash(window.location.hash) || contentSections[0].dataset.section;
+              activate(initialId);
+            })();
+          </script>
         </body>
       </html>
     </template>
 
+    <input id="input-load-draft" type="file" accept="application/json" hidden />
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script src="assets/app.js" type="module"></script>
   </body>
 </html>
