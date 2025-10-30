@@ -205,10 +205,17 @@ textarea {
   display: flex;
   gap: 0.75rem;
   width: 100%;
+  align-items: flex-start;
 }
 
-.inline-controls input {
+.inline-controls input,
+.inline-controls textarea {
   flex: 1;
+}
+
+.inline-controls textarea {
+  min-height: 120px;
+  resize: vertical;
 }
 
 .chip-btn {
@@ -237,7 +244,7 @@ textarea {
 
 .chip {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.7rem;
   padding: 0.6rem 0.85rem;
   border-radius: 0.85rem;
@@ -250,11 +257,12 @@ textarea {
   flex: 1;
   min-width: 0;
   word-break: break-word;
+  white-space: pre-line;
 }
 
 .chip__actions {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.4rem;
 }
 
@@ -316,6 +324,9 @@ textarea {
   background: rgba(9, 13, 26, 0.85);
   color: rgba(240, 244, 255, 0.95);
   box-shadow: 0 0 0 2px rgba(93, 102, 255, 0.2);
+  resize: vertical;
+  min-height: 3.25rem;
+  line-height: 1.5;
 }
 
 .chip__edit-input:focus {
@@ -356,34 +367,165 @@ textarea {
 
 .resource-item {
   display: grid;
-  gap: 0.25rem;
-  padding: 0.85rem;
-  border-radius: 0.9rem;
+  grid-template-columns: 1fr auto;
+  gap: 0.9rem;
+  padding: 0.95rem 1rem;
+  border-radius: 0.95rem;
   background: rgba(13, 19, 33, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.resource-item strong {
-  font-size: 0.98rem;
+.resource-item:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 30px -26px rgba(5, 7, 20, 0.65);
 }
 
-.resource-item a {
+.resource-item__body {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.resource-item__body strong {
+  font-size: 1rem;
+}
+
+.resource-item__body a {
   color: rgba(121, 235, 255, 0.95);
   text-decoration: none;
   font-size: 0.95rem;
   word-break: break-word;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
-.remove-btn {
-  justify-self: flex-start;
-  margin-top: 0.25rem;
-  font-size: 0.85rem;
-  padding: 0.35rem 0.65rem;
-  border-radius: 0.6rem;
-  background: rgba(255, 255, 255, 0.12);
+.resource-item__body span {
+  font-size: 0.92rem;
+  color: rgba(240, 244, 255, 0.75);
+  white-space: pre-line;
+}
+
+.resource-item__actions {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.resource-item__btn {
   border: none;
-  color: inherit;
+  border-radius: 0.65rem;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(240, 244, 255, 0.95);
   cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.2s ease;
+}
+
+.resource-item__btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 20px -12px rgba(5, 7, 20, 0.6);
+}
+
+.resource-item__btn:focus-visible {
+  outline: 2px solid rgba(141, 152, 255, 0.8);
+  outline-offset: 2px;
+}
+
+.resource-item__btn--delete {
+  background: rgba(255, 105, 138, 0.22);
+  color: rgba(255, 220, 229, 0.92);
+}
+
+.resource-item__btn--delete:hover {
+  background: rgba(255, 105, 138, 0.32);
+}
+
+.resource-item--editing {
+  border-color: rgba(170, 190, 255, 0.55);
+  box-shadow: 0 0 0 2px rgba(93, 102, 255, 0.15);
+  background: rgba(17, 23, 38, 0.78);
+}
+
+.resource-edit {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.resource-edit__field {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: rgba(240, 244, 255, 0.8);
+}
+
+.resource-edit__field span {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.resource-edit__field input,
+.resource-edit__field textarea {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(170, 190, 255, 0.35);
+  background: rgba(9, 13, 26, 0.88);
+  color: rgba(240, 244, 255, 0.95);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resource-edit__field input:focus,
+.resource-edit__field textarea:focus {
+  outline: none;
+  border-color: rgba(196, 206, 255, 0.8);
+  box-shadow: 0 0 0 3px rgba(93, 102, 255, 0.28);
+}
+
+.resource-edit__field textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.resource-edit__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+}
+
+.resource-edit__save,
+.resource-edit__cancel {
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.5rem 1.1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.resource-edit__save {
+  background: linear-gradient(120deg, var(--accent), #4fd1ff);
+  color: #051016;
+}
+
+.resource-edit__cancel {
+  background: rgba(255, 255, 255, 0.16);
+  color: rgba(240, 244, 255, 0.92);
+}
+
+.resource-edit__save:hover,
+.resource-edit__cancel:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px -18px rgba(5, 7, 20, 0.65);
 }
 
 .theme-fieldset {
