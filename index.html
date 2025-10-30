@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduWebQuest Builder</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand__tag">Beta</span>
+        <h1>EduWebQuest Builder</h1>
+        <p>Crea WebQuests modernas listas para GitHub Pages.</p>
+      </div>
+      <div class="actions">
+        <button id="btn-copy" class="action-btn" type="button">Copiar HTML</button>
+        <button id="btn-download" class="action-btn action-btn--primary" type="button">
+          Descargar WebQuest
+        </button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel panel--form">
+        <h2>Contenido de la WebQuest</h2>
+        <form id="webquest-form" autocomplete="off">
+          <div class="form-grid">
+            <label>
+              <span>Título principal</span>
+              <input type="text" name="title" placeholder="Descubre el Sistema Solar" />
+            </label>
+            <label>
+              <span>Subtítulo o tagline</span>
+              <input
+                type="text"
+                name="subtitle"
+                placeholder="Un viaje colaborativo por el espacio"
+              />
+            </label>
+          </div>
+
+          <label>
+            <span>Introducción</span>
+            <textarea
+              name="introduction"
+              rows="4"
+              placeholder="Describe el contexto y motiva al alumnado."
+            ></textarea>
+          </label>
+
+          <label>
+            <span>Tarea</span>
+            <textarea
+              name="task"
+              rows="3"
+              placeholder="Explica la misión final que deben completar."
+            ></textarea>
+          </label>
+
+          <div class="fieldset">
+            <div class="fieldset__header">
+              <h3>Proceso</h3>
+              <div class="inline-controls">
+                <input
+                  type="text"
+                  id="process-input"
+                  placeholder="Añade un paso (p.ej. Investigar planetas interiores)"
+                />
+                <button type="button" id="add-process" class="chip-btn">Añadir</button>
+              </div>
+            </div>
+            <ul id="process-list" class="chip-list"></ul>
+          </div>
+
+          <div class="fieldset">
+            <div class="fieldset__header fieldset__header--wrap">
+              <h3>Recursos</h3>
+              <div class="resource-inputs">
+                <input
+                  type="text"
+                  id="resource-title"
+                  placeholder="Nombre del recurso"
+                  aria-label="Nombre del recurso"
+                />
+                <input
+                  type="url"
+                  id="resource-link"
+                  placeholder="https://"
+                  aria-label="Enlace del recurso"
+                />
+                <input
+                  type="text"
+                  id="resource-notes"
+                  placeholder="Notas (opcional)"
+                  aria-label="Notas del recurso"
+                />
+                <button type="button" id="add-resource" class="chip-btn">Añadir</button>
+              </div>
+            </div>
+            <ul id="resource-list" class="resource-list"></ul>
+          </div>
+
+          <label>
+            <span>Evaluación</span>
+            <textarea
+              name="evaluation"
+              rows="3"
+              placeholder="Describe la rúbrica o criterios de evaluación."
+            ></textarea>
+          </label>
+
+          <label>
+            <span>Conclusión</span>
+            <textarea
+              name="conclusion"
+              rows="3"
+              placeholder="Cierra la experiencia y plantea una reflexión final."
+            ></textarea>
+          </label>
+
+          <label>
+            <span>Notas para el profesorado</span>
+            <textarea
+              name="teacher_notes"
+              rows="3"
+              placeholder="Pistas para docentes, estándares o conexiones curriculares."
+            ></textarea>
+          </label>
+
+          <fieldset class="fieldset theme-fieldset">
+            <legend>Personaliza la estética</legend>
+            <div class="theme-grid">
+              <label>
+                <span>Color base</span>
+                <input type="color" name="color" value="#4355fa" />
+              </label>
+              <label>
+                <span>Imagen de cabecera (URL)</span>
+                <input
+                  type="url"
+                  name="heroImage"
+                  placeholder="https://images.unsplash.com/..."
+                />
+              </label>
+              <label>
+                <span>Autor o créditos</span>
+                <input type="text" name="credits" placeholder="Equipo docente 2024" />
+              </label>
+            </div>
+          </fieldset>
+        </form>
+      </section>
+
+      <section class="panel panel--preview">
+        <div class="preview-wrapper">
+          <h2>Vista previa en vivo</h2>
+          <iframe id="preview" title="Vista previa de la WebQuest"></iframe>
+        </div>
+      </section>
+    </main>
+
+    <template id="preview-template">
+      <!DOCTYPE html>
+      <html lang="es">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>{{title}}</title>
+          <style>
+            :root {
+              --primary: {{color}};
+              --primary-transparent: {{color}}1a;
+              --surface: #ffffff;
+              --surface-alt: #f7f8fb;
+              --text: #1f2328;
+              --muted: #525760;
+              font-size: 16px;
+            }
+            *, *::before, *::after {
+              box-sizing: border-box;
+            }
+            body {
+              margin: 0;
+              font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+              color: var(--text);
+              background: radial-gradient(circle at top, var(--primary-transparent), transparent 55%) no-repeat,
+                #f3f4f9;
+            }
+            header {
+              background: linear-gradient(120deg, var(--primary), #3f88ff);
+              color: #fff;
+              padding: 4rem 1.5rem;
+              text-align: center;
+              position: relative;
+              overflow: hidden;
+            }
+            header::after {
+              content: '';
+              position: absolute;
+              inset: -30% -10% auto;
+              height: 65%;
+              background: radial-gradient(circle, rgba(255,255,255,0.25), transparent 70%);
+              opacity: 0.7;
+            }
+            header h1 {
+              margin: 0 auto 0.75rem;
+              max-width: 26rem;
+              font-size: clamp(2.5rem, 5vw, 3.2rem);
+              font-family: 'Playfair Display', Georgia, serif;
+              letter-spacing: -0.02em;
+            }
+            header p {
+              margin: 0 auto;
+              max-width: 34rem;
+              font-size: 1.05rem;
+              line-height: 1.6;
+            }
+            .hero-image {
+              margin: 2.5rem auto 0;
+              width: min(92%, 960px);
+              border-radius: 20px;
+              overflow: hidden;
+              box-shadow: 0 20px 45px -30px rgba(15, 23, 42, 0.6);
+            }
+            .hero-image img {
+              display: block;
+              width: 100%;
+              height: 320px;
+              object-fit: cover;
+            }
+            main {
+              width: min(960px, calc(100% - 3rem));
+              margin: -3.5rem auto 3.5rem;
+              display: grid;
+              gap: 1.75rem;
+            }
+            section {
+              background: var(--surface);
+              border-radius: 22px;
+              padding: 2.5rem;
+              box-shadow: 0 22px 50px -35px rgba(18, 22, 33, 0.8);
+            }
+            section h2 {
+              margin-top: 0;
+              font-size: 1.75rem;
+              font-weight: 600;
+            }
+            p, li {
+              font-size: 1.05rem;
+              line-height: 1.7;
+              color: var(--muted);
+            }
+            ol.process {
+              counter-reset: step;
+              list-style: none;
+              padding: 0;
+              margin: 0;
+            }
+            ol.process li {
+              position: relative;
+              padding: 0 0 0 3.5rem;
+              margin-bottom: 1.5rem;
+            }
+            ol.process li::before {
+              counter-increment: step;
+              content: counter(step, decimal-leading-zero);
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 2.6rem;
+              height: 2.6rem;
+              display: grid;
+              place-items: center;
+              font-weight: 600;
+              color: var(--primary);
+              background: rgba(67, 85, 250, 0.08);
+              border-radius: 14px;
+            }
+            .resource-grid {
+              display: grid;
+              gap: 1rem;
+              grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            }
+            .resource-card {
+              border: 1px solid rgba(67, 85, 250, 0.12);
+              border-radius: 16px;
+              padding: 1.25rem;
+              background: var(--surface-alt);
+              transition: transform 0.25s ease;
+            }
+            .resource-card:hover {
+              transform: translateY(-6px);
+            }
+            .resource-card a {
+              display: inline-flex;
+              align-items: center;
+              gap: 0.5rem;
+              color: var(--primary);
+              font-weight: 600;
+              text-decoration: none;
+            }
+            footer {
+              text-align: center;
+              margin: 4rem auto 3rem;
+              color: rgba(31, 35, 40, 0.6);
+              font-size: 0.95rem;
+            }
+            @media (max-width: 720px) {
+              header {
+                padding: 3.5rem 1.2rem;
+              }
+              section {
+                padding: 2rem 1.5rem;
+              }
+            }
+          </style>
+          <link
+            rel="preconnect"
+            href="https://fonts.googleapis.com"
+          />
+          <link
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossorigin
+          />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap"
+            rel="stylesheet"
+          />
+        </head>
+        <body>
+          <header>
+            <h1>{{title}}</h1>
+            {{#subtitle}}<p>{{subtitle}}</p>{{/subtitle}}
+            {{#heroImage}}
+            <div class="hero-image">
+              <img src="{{heroImage}}" alt="">
+            </div>
+            {{/heroImage}}
+          </header>
+          <main>
+            <section>
+              <h2>Introducción</h2>
+              {{{introduction}}}
+            </section>
+            <section>
+              <h2>Tarea</h2>
+              {{{task}}}
+            </section>
+            {{#hasProcess}}
+            <section>
+              <h2>Proceso</h2>
+              <ol class="process">
+                {{#process}}
+                <li>{{.}}</li>
+                {{/process}}
+              </ol>
+            </section>
+            {{/hasProcess}}
+            {{#hasResources}}
+            <section>
+              <h2>Recursos</h2>
+              <div class="resource-grid">
+                {{#resources}}
+                <article class="resource-card">
+                  <h3>{{title}}</h3>
+                  {{#notes}}<p>{{notes}}</p>{{/notes}}
+                  <a href="{{link}}" target="_blank" rel="noopener">
+                    Visitar recurso
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </article>
+                {{/resources}}
+              </div>
+            </section>
+            {{/hasResources}}
+            {{#evaluation}}
+            <section>
+              <h2>Evaluación</h2>
+              {{{evaluation}}}
+            </section>
+            {{/evaluation}}
+            {{#conclusion}}
+            <section>
+              <h2>Conclusión</h2>
+              {{{conclusion}}}
+            </section>
+            {{/conclusion}}
+            {{#teacher_notes}}
+            <section>
+              <h2>Notas para el profesorado</h2>
+              {{{teacher_notes}}}
+            </section>
+            {{/teacher_notes}}
+          </main>
+          {{#credits}}
+          <footer>
+            <p>Creado por {{credits}}</p>
+          </footer>
+          {{/credits}}
+        </body>
+      </html>
+    </template>
+
+    <script src="assets/app.js" type="module"></script>
+  </body>
+</html>
