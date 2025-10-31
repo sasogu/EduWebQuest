@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v1.1.18";
+const CACHE_VERSION = "v1.1.19";
 const CACHE_PREFIX = "eduwebquest-cache";
 const CACHE_NAME = `${CACHE_PREFIX}-${CACHE_VERSION}`;
 
