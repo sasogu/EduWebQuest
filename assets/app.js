@@ -23,7 +23,7 @@ const languageSelect = document.getElementById("language-select");
 const moodleModal = document.getElementById("moodle-modal");
 const moodleExportConfirmBtn = document.getElementById("moodle-export-confirm");
 
-const SERVICE_WORKER_VERSION = "v1.1.1";
+const SERVICE_WORKER_VERSION = "v1.1.11";
 const LANG_STORAGE_KEY = "eduwebquest:lang";
 let lastModalTrigger = null;
 let previousBodyOverflow = "";
@@ -1762,12 +1762,21 @@ function buildMoodleManifest(title, entryFile, sections = []) {
               ? section.id.trim()
               : `section-${index + 1}`;
           const sectionId = rawId;
+          const rawAnchor =
+            typeof section?.anchorId === "string" && section.anchorId.trim()
+              ? section.anchorId.trim()
+              : "";
+          const anchorFragment = rawAnchor ? `#${encodeURIComponent(rawAnchor)}` : "";
           const sectionTitle =
             typeof section?.title === "string" && section.title.trim()
               ? section.title.trim()
               : `Sección ${index + 1}`;
-          const childId = `${itemId}-S${index + 1}`;
-          const parameters = `?section=${encodeURIComponent(sectionId)}`;
+          const childId =
+            typeof section?.manifestItemId === "string" && section.manifestItemId.trim()
+              ? section.manifestItemId.trim()
+              : `${itemId}-S${index + 1}`;
+          section.manifestItemId = childId;
+          const parameters = anchorFragment;
           return `<item identifier="${escapeXml(childId)}" identifierref="${escapeXml(
             resourceId
           )}" adlcp:parameters="${escapeXml(parameters)}">
@@ -1916,7 +1925,15 @@ function getRenderData(options = {}) {
     });
   }
 
+  const manifestSlug = isMoodle ? slugify(getTitle()) || "webquest" : null;
+  const manifestItemPrefix = manifestSlug ? `ITEM-${manifestSlug}`.toUpperCase() : null;
+
   sections.forEach((section, index) => {
+    section.position = index + 1;
+    section.anchorId = `${section.id}-content`;
+    if (manifestItemPrefix) {
+      section.manifestItemId = `${manifestItemPrefix}-S${index + 1}`;
+    }
     const next = sections[index + 1];
     if (next) {
       section.next = {

@@ -460,12 +460,19 @@
               padding: 2.5rem;
               box-shadow: 0 24px 60px -38px rgba(18, 22, 33, 0.85);
               animation: fadeIn 0.35s ease both;
+              scroll-margin-top: 120px;
             }
             .page.is-active {
               display: block;
             }
             .main-layout--single .page {
               display: block;
+            }
+            .page__anchor-target {
+              display: block;
+              height: 0;
+              width: 100%;
+              pointer-events: none;
             }
             .page h2 {
               margin: 0 0 1.5rem;
@@ -719,7 +726,8 @@
             </div>
             {{/heroImage}}
           </header>
-          <main class="main-layout">
+          <main class="{{layoutClass}}">
+            {{#showSidebar}}
             <nav class="sidebar" aria-label="{{t.sidebarAria}}">
               <h2>{{t.sidebarTitle}}</h2>
               <ul>
@@ -728,10 +736,20 @@
                 {{/sections}}
               </ul>
             </nav>
+            {{/showSidebar}}
             <div class="pages">
               {{#sections}}
-              <article class="page" data-section="{{id}}" id="{{id}}">
+              <article
+                class="page"
+                data-section="{{id}}"
+                id="{{id}}"
+                data-section-index="{{position}}"
+                {{#manifestItemId}}data-toc-id="{{manifestItemId}}"{{/manifestItemId}}
+              >
                 <h2>{{title}}</h2>
+                {{#isMoodle}}
+                <div id="{{anchorId}}" class="page__anchor-target" data-section-anchor></div>
+                {{/isMoodle}}
                 {{#isRich}}
                 <div class="page__body">
                   {{{body}}}
@@ -781,31 +799,38 @@
           <script>
             (function () {
               const contentSections = Array.from(document.querySelectorAll('[data-section]'));
-              const navLinks = Array.from(document.querySelectorAll('.sidebar [data-section-target]'));
-              const nextLinks = Array.from(document.querySelectorAll('[data-next-target]'));
               if (!contentSections.length) {
                 return;
               }
-              const initialSearch = new URLSearchParams(window.location.search);
+
+              const navLinks = Array.from(document.querySelectorAll('.sidebar [data-section-target]'));
+              const nextLinks = Array.from(document.querySelectorAll('[data-next-target]'));
               const hasTabs = navLinks.length > 0;
-              const preferParam = initialSearch.has('section') || !hasTabs;
+
+              if (!hasTabs) {
+                return;
+              }
+
+              const initialSearch = new URLSearchParams(window.location.search);
+              const preferParam = initialSearch.has('section');
+              const sectionAnchors = new Map();
+
+              contentSections.forEach((section) => {
+                const anchor = section.querySelector('[data-section-anchor]');
+                sectionAnchors.set(section.dataset.section, anchor ? anchor.id : '');
+              });
 
               function normalizeHash(hash) {
                 if (!hash) return '';
                 return decodeURIComponent(hash.replace('#', '').trim());
               }
 
-              if (!hasTabs) {
-                const paramId = preferParam ? initialSearch.get('section') : null;
-                const hashId = normalizeHash(window.location.hash);
-                const targetId = paramId || hashId;
-                if (targetId) {
-                  const targetSection = contentSections.find((section) => section.dataset.section === targetId);
-                  if (targetSection) {
-                    targetSection.scrollIntoView({ behavior: 'auto', block: 'start' });
-                  }
-                }
-                return;
+              function scrollToSection(section, behavior) {
+                if (!section) return;
+                const anchorId = sectionAnchors.get(section.dataset.section);
+                const anchorElement = anchorId ? document.getElementById(anchorId) : null;
+                const target = anchorElement || section;
+                target.scrollIntoView({ behavior, block: 'start' });
               }
 
               function activate(targetId, { scroll = false } = {}) {
@@ -814,7 +839,7 @@
                   current = contentSections[0];
                 }
                 if (!current) {
-                  return "";
+                  return '';
                 }
                 contentSections.forEach((section) => {
                   section.classList.toggle('is-active', section === current);
@@ -830,7 +855,7 @@
                 });
                 if (scroll) {
                   const behavior = scroll === 'auto' ? 'auto' : 'smooth';
-                  current.scrollIntoView({ behavior, block: 'start' });
+                  scrollToSection(current, behavior);
                 }
                 return current.dataset.section;
               }
