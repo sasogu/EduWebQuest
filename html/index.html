@@ -70,9 +70,31 @@
         font-size: 0.85rem;
         opacity: 0.6;
       }
+      .back-link {
+        align-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 1.5rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 0.75rem;
+        background: rgba(85, 240, 208, 0.12);
+        color: #55f0d0;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.2s ease, transform 0.2s ease;
+      }
+      .back-link:hover {
+        background: rgba(85, 240, 208, 0.2);
+        transform: translateY(-1px);
+      }
     </style>
   </head>
   <body>
+    <a class="back-link" href="../">
+      <span aria-hidden="true">←</span>
+      Volver a la aplicación
+    </a>
     <h1>Ejemplos de WebQuest</h1>
     <p>
       Esta página enumera ejemplos creados con EduWebQuest Builder. Añade tus archivos HTML en esta carpeta y
