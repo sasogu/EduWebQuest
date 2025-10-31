@@ -111,6 +111,10 @@ body {
 }
 
 .action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(16, 21, 38, 0.74);
   color: var(--text);
@@ -126,6 +130,35 @@ body {
   transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 0 10px 30px -15px rgba(11, 9, 90, 0.8);
+}
+
+.action-btn__icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  display: block;
+}
+
+.action-btn--icon {
+  padding: 0.55rem;
+  border-radius: 0.85rem;
+  gap: 0;
+  min-width: 0;
+}
+
+.action-btn--icon .action-btn__icon {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.action-btn--icon .sr-only {
+  position: absolute;
+}
+
+.action-btn__feedback {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  display: block;
+  text-align: center;
 }
 
 .action-btn--primary {

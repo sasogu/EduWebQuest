@@ -29,7 +29,7 @@ const languageSelect = document.getElementById("language-select");
 const moodleModal = document.getElementById("moodle-modal");
 const moodleExportConfirmBtn = document.getElementById("moodle-export-confirm");
 
-const SERVICE_WORKER_VERSION = "v1.1.19";
+const SERVICE_WORKER_VERSION = "v1.1.20";
 const LANG_STORAGE_KEY = "eduwebquest:lang";
 let lastModalTrigger = null;
 let previousBodyOverflow = "";
@@ -89,7 +89,7 @@ const translations = {
     app: {
       beta: "Beta",
       title: "EduWebQuest Builder",
-      tagline: "Crea WebQuests modernes llestes per a GitHub Pages."
+      tagline: "Crea WebQuests modernes."
     },
     actions: {
       copy: "Copia l'HTML",
@@ -97,6 +97,7 @@ const translations = {
       downloadMoodle: "Descarrega per a Moodle",
       saveDraft: "Guarda l'esborrany",
       loadDraft: "Carrega l'esborrany",
+      viewExamples: "Veure exemples",
       modalCancel: "Cancel·la",
       modalConfirm: "D'acord, exporta",
       copySuccess: "Copiat ✓",
@@ -244,7 +245,7 @@ const translations = {
     app: {
       beta: "Beta",
       title: "EduWebQuest Builder",
-      tagline: "Crea WebQuests modernas listas para GitHub Pages."
+      tagline: "Crea WebQuests modernas."
     },
     actions: {
       copy: "Copiar HTML",
@@ -252,6 +253,7 @@ const translations = {
       downloadMoodle: "Descargar para Moodle",
       saveDraft: "Guardar borrador",
       loadDraft: "Cargar borrador",
+      viewExamples: "Ver ejemplos",
       modalCancel: "Cancelar",
       modalConfirm: "Entendido, exportar",
       copySuccess: "Copiado ✓",
@@ -399,7 +401,7 @@ const translations = {
     app: {
       beta: "Beta",
       title: "EduWebQuest Builder",
-      tagline: "Build modern WebQuests ready for GitHub Pages."
+      tagline: "Build modern WebQuests."
     },
     actions: {
       copy: "Copy HTML",
@@ -407,6 +409,7 @@ const translations = {
       downloadMoodle: "Download for Moodle",
       saveDraft: "Save draft",
       loadDraft: "Load draft",
+      viewExamples: "View examples",
       modalCancel: "Cancel",
       modalConfirm: "Got it, export",
       copySuccess: "Copied ✓",
@@ -2453,9 +2456,11 @@ function handleDraftFileChange(event) {
 }
 
 function animateAction(button, finalLabel, isError = false) {
-  const originalText = button.textContent;
+  if (!button.dataset.originalContent) {
+    button.dataset.originalContent = button.innerHTML;
+  }
   button.disabled = true;
-  button.textContent = finalLabel;
+  button.innerHTML = `<span class="action-btn__feedback">${finalLabel}</span>`;
   if (isError) {
     button.classList.add("action-btn--error");
   } else {
@@ -2463,7 +2468,7 @@ function animateAction(button, finalLabel, isError = false) {
   }
   setTimeout(() => {
     button.disabled = false;
-    button.textContent = originalText;
+    button.innerHTML = button.dataset.originalContent || button.innerHTML;
     button.classList.remove("action-btn--success", "action-btn--error");
   }, 1800);
 }
