@@ -19,6 +19,7 @@ Només cal un navegador modern. Per desenvolupar i servir l'aplicació en local 
 1. Clona el repositori i accedeix al directori `EduWebQuest`.
 2. Obri `index.html` en un navegador o llança un servidor estàtic.
 3. Fes canvis en els fitxers d'`assets/css` i `assets/js` i recarrega la pàgina.
+4. Per compartir exemples exportats, col·loca els HTML a la carpeta `html/`, registra'ls en `html/examples.json` i l'índex es generarà automàticament al visitar `html/index.html`.
 
 ## Licència
 

@@ -1,10 +1,12 @@
-const CACHE_VERSION = "v1.1.12";
+const CACHE_VERSION = "v1.1.13";
 const CACHE_PREFIX = "eduwebquest-cache";
 const CACHE_NAME = `${CACHE_PREFIX}-${CACHE_VERSION}`;
 
 const CORE_ASSETS = [
   "./",
   "./index.html",
+  "./html/index.html",
+  "./html/examples.json",
   "./manifest.webmanifest",
   "./assets/css/app.css",
   "./assets/css/preview.css",

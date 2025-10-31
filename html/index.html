@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ejemplos de WebQuest</title>
+    <link rel="stylesheet" href="../assets/css/app.css" />
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem clamp(1.25rem, 3vw, 3rem);
+        color: #f8fbff;
+        background:
+          radial-gradient(circle at 20% -10%, rgba(93, 102, 255, 0.35), transparent 50%),
+          radial-gradient(circle at 80% -5%, rgba(31, 209, 254, 0.3), transparent 55%),
+          radial-gradient(circle at 50% 40%, rgba(115, 102, 255, 0.18), transparent 65%),
+          #0f172a;
+        min-height: 100vh;
+      }
+      h1 {
+        margin-bottom: 0.5rem;
+      }
+      p {
+        max-width: 720px;
+        text-align: center;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 2rem 0;
+        display: grid;
+        gap: 1rem;
+        width: min(720px, 100%);
+      }
+      li {
+        background: rgba(16, 21, 38, 0.78);
+        border-radius: 18px;
+        padding: 1.25rem 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.5rem;
+      }
+      li span {
+        display: block;
+        font-weight: 600;
+      }
+      li time {
+        font-size: 0.85rem;
+        opacity: 0.7;
+      }
+      li a {
+        color: #55f0d0;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      li a:hover {
+        text-decoration: underline;
+      }
+      .empty {
+        margin-top: 2rem;
+        font-style: italic;
+        opacity: 0.75;
+      }
+      footer {
+        margin-top: auto;
+        font-size: 0.85rem;
+        opacity: 0.6;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Ejemplos de WebQuest</h1>
+    <p>
+      Esta página enumera ejemplos creados con EduWebQuest Builder. Añade tus archivos HTML en esta carpeta y
+      registra su nombre en <code>examples.json</code> para que aparezcan automáticamente.
+    </p>
+    <ul id="examples-list"></ul>
+    <p id="empty-state" class="empty" hidden>No hay ejemplos publicados todavía.</p>
+    <footer>
+      Actualiza <code>examples.json</code> cada vez que añadas un nuevo archivo. Formato: <code>[{"title":"Titulo","file":"archivo.html","date":"2024-09-01"}]</code>
+    </footer>
+    <script>
+      async function loadExamples() {
+        try {
+          const response = await fetch('examples.json', { cache: 'no-cache' });
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          const examples = await response.json();
+          renderExamples(Array.isArray(examples) ? examples : []);
+        } catch (error) {
+          console.error('No se pudo cargar examples.json', error);
+          renderExamples([]);
+        }
+      }
+
+      function renderExamples(examples) {
+        const list = document.getElementById('examples-list');
+        const emptyState = document.getElementById('empty-state');
+        list.innerHTML = '';
+        if (!examples.length) {
+          emptyState.hidden = false;
+          return;
+        }
+        emptyState.hidden = true;
+        examples.forEach((example) => {
+          const title = typeof example?.title === 'string' ? example.title.trim() : '';
+          const file = typeof example?.file === 'string' ? example.file.trim() : '';
+          if (!title || !file) return;
+          const dateString = typeof example?.date === 'string' ? example.date.trim() : '';
+          const item = document.createElement('li');
+          const info = document.createElement('div');
+          const span = document.createElement('span');
+          span.textContent = title;
+          info.appendChild(span);
+          if (dateString) {
+            const time = document.createElement('time');
+            time.dateTime = dateString;
+            time.textContent = new Date(dateString).toLocaleDateString('es-ES', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            });
+            info.appendChild(time);
+          }
+          const link = document.createElement('a');
+          link.href = file;
+          link.target = '_blank';
+          link.rel = 'noopener';
+          link.textContent = 'Abrir';
+          item.append(info, link);
+          list.appendChild(item);
+        });
+      }
+
+      loadExamples();
+    </script>
+  </body>
+</html>
