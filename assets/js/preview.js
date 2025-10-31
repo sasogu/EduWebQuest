@@ -4,12 +4,88 @@
                 return;
               }
 
+              const sidebar = document.querySelector('[data-sidebar]');
+              const sidebarToggle = sidebar ? sidebar.querySelector('[data-sidebar-toggle]') : null;
+              const sidebarPanel = sidebar ? sidebar.querySelector('[data-sidebar-panel]') : null;
+              const sidebarToggleLabel = sidebarToggle
+                ? sidebarToggle.querySelector('[data-sidebar-toggle-label]')
+                : null;
+              const mobileBreakpoint =
+                typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+                  ? window.matchMedia('(max-width: 720px)')
+                  : null;
+              const defaultToggleLabel = sidebarToggleLabel ? sidebarToggleLabel.textContent.trim() : '';
+
               const navLinks = Array.from(document.querySelectorAll('.sidebar [data-section-target]'));
               const nextLinks = Array.from(document.querySelectorAll('[data-next-target]'));
               const hasTabs = navLinks.length > 0;
 
               if (!hasTabs) {
                 return;
+              }
+
+              const isMobile = () => (mobileBreakpoint ? mobileBreakpoint.matches : false);
+
+              function setSidebarState(open) {
+                if (!sidebar || !sidebarToggle || !sidebarPanel) {
+                  return;
+                }
+                sidebar.classList.toggle('sidebar--expanded', open);
+                sidebarToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (isMobile()) {
+                  if (open) {
+                    sidebarPanel.removeAttribute('hidden');
+                  } else {
+                    sidebarPanel.setAttribute('hidden', '');
+                  }
+                } else {
+                  sidebarPanel.removeAttribute('hidden');
+                }
+              }
+
+              function collapseSidebarIfMobile() {
+                if (isMobile()) {
+                  setSidebarState(false);
+                }
+              }
+
+              function updateSidebarToggleLabel(activeLink) {
+                if (!sidebarToggleLabel) {
+                  return;
+                }
+                const text = activeLink && activeLink.textContent ? activeLink.textContent.trim() : '';
+                if (text) {
+                  sidebarToggleLabel.textContent = text;
+                } else if (defaultToggleLabel) {
+                  sidebarToggleLabel.textContent = defaultToggleLabel;
+                }
+              }
+
+              if (sidebar && sidebarToggle && sidebarPanel) {
+                sidebarToggle.addEventListener('click', () => {
+                  const isExpanded = sidebar.classList.contains('sidebar--expanded');
+                  setSidebarState(!isExpanded);
+                });
+
+                if (mobileBreakpoint) {
+                  const handleBreakpointChange = (event) => {
+                    if (event.matches) {
+                      setSidebarState(false);
+                    } else {
+                      setSidebarState(true);
+                    }
+                  };
+                  if (typeof mobileBreakpoint.addEventListener === 'function') {
+                    mobileBreakpoint.addEventListener('change', handleBreakpointChange);
+                  } else if (typeof mobileBreakpoint.addListener === 'function') {
+                    mobileBreakpoint.addListener(handleBreakpointChange);
+                  }
+                  handleBreakpointChange(mobileBreakpoint);
+                } else {
+                  setSidebarState(true);
+                }
+              } else {
+                updateSidebarToggleLabel(null);
               }
 
               const initialSearch = new URLSearchParams(window.location.search);
@@ -45,15 +121,18 @@
                 contentSections.forEach((section) => {
                   section.classList.toggle('is-active', section === current);
                 });
+                let activeLink = null;
                 navLinks.forEach((link) => {
                   const isActive = link.dataset.sectionTarget === current.dataset.section;
                   link.classList.toggle('is-active', isActive);
                   if (isActive) {
                     link.setAttribute('aria-current', 'page');
+                    activeLink = link;
                   } else {
                     link.removeAttribute('aria-current');
                   }
                 });
+                updateSidebarToggleLabel(activeLink);
                 if (scroll) {
                   const behavior = scroll === 'auto' ? 'auto' : 'smooth';
                   scrollToSection(current, behavior);
@@ -106,6 +185,7 @@
                   event.preventDefault();
                   const targetId = link.dataset.sectionTarget;
                   goTo(targetId, { scroll: true });
+                  collapseSidebarIfMobile();
                 });
               });
 

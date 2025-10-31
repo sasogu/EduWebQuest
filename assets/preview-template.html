@@ -33,13 +33,27 @@
           </header>
           <main class="{{layoutClass}}">
             {{#showSidebar}}
-            <nav class="sidebar" aria-label="{{t.sidebarAria}}">
-              <h2>{{t.sidebarTitle}}</h2>
-              <ul>
-                {{#sections}}
-                <li><a href="#{{id}}" data-section-target="{{id}}">{{title}}</a></li>
-                {{/sections}}
-              </ul>
+            <nav class="sidebar" aria-label="{{t.sidebarAria}}" data-sidebar>
+              <div class="sidebar__header">
+                <h2>{{t.sidebarTitle}}</h2>
+                <button
+                  class="sidebar__toggle"
+                  type="button"
+                  data-sidebar-toggle
+                  aria-expanded="false"
+                  aria-controls="sidebar-panel"
+                >
+                  <span data-sidebar-toggle-label>{{t.sidebarToggle}}</span>
+                  <span class="sidebar__toggle-icon" aria-hidden="true">▾</span>
+                </button>
+              </div>
+              <div class="sidebar__panel" id="sidebar-panel" data-sidebar-panel>
+                <ul>
+                  {{#sections}}
+                  <li><a href="#{{id}}" data-section-target="{{id}}">{{title}}</a></li>
+                  {{/sections}}
+                </ul>
+              </div>
             </nav>
             {{/showSidebar}}
             <div class="pages">
