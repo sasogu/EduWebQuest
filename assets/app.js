@@ -23,7 +23,7 @@ const languageSelect = document.getElementById("language-select");
 const moodleModal = document.getElementById("moodle-modal");
 const moodleExportConfirmBtn = document.getElementById("moodle-export-confirm");
 
-const SERVICE_WORKER_VERSION = "v1.1.0";
+const SERVICE_WORKER_VERSION = "v1.1.1";
 const LANG_STORAGE_KEY = "eduwebquest:lang";
 let lastModalTrigger = null;
 let previousBodyOverflow = "";
@@ -1387,10 +1387,34 @@ function resetSplitWidth() {
 let resizeState = null;
 let resizeRaf = null;
 
+function normalizeLocaleCandidate(value) {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (translations[normalized]) {
+    return normalized;
+  }
+  return null;
+}
+
+function getLocaleFromDraft(rawDraft) {
+  if (!rawDraft || typeof rawDraft !== "object") {
+    return null;
+  }
+  const direct = normalizeLocaleCandidate(rawDraft.locale);
+  if (direct) {
+    return direct;
+  }
+  const nested = normalizeLocaleCandidate(rawDraft?.data?.locale);
+  return nested ?? null;
+}
+
 function buildDraftPayload() {
   return {
     version: CURRENT_DRAFT_VERSION,
     savedAt: new Date().toISOString(),
+    locale: currentLocale,
     data: {
       title: state.title ?? "",
       subtitle: state.subtitle ?? "",
@@ -1467,6 +1491,10 @@ function applyDraftPayload(rawDraft, { skipPersist = false } = {}) {
   state.color = normalized.color || defaultState.color;
   state.heroImage = normalized.heroImage || "";
   state.credits = normalized.credits || "";
+  const draftLocale = getLocaleFromDraft(rawDraft);
+  if (draftLocale && draftLocale !== currentLocale) {
+    setLocale(draftLocale);
+  }
   syncForm();
   updatePreview();
   if (!skipPersist) {
