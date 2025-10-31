@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -19,70 +19,109 @@
   <body>
     <header class="app-header">
       <div class="brand">
-        <span class="brand__tag">Beta</span>
-        <h1>EduWebQuest Builder</h1>
-        <p>Crea WebQuests modernas listas para GitHub Pages.</p>
+        <span class="brand__tag" data-i18n="app.beta">Beta</span>
+        <h1 data-i18n="app.title">EduWebQuest Builder</h1>
+        <p data-i18n="app.tagline">Crea WebQuests modernes llestes per a GitHub Pages.</p>
       </div>
       <div class="actions">
-        <button id="btn-copy" class="action-btn" type="button">Copiar HTML</button>
-        <button id="btn-download" class="action-btn action-btn--primary" type="button">
-          Descargar WebQuest
+        <button id="btn-copy" class="action-btn" type="button" data-i18n="actions.copy">
+          Copia l'HTML
         </button>
-        <button id="btn-download-moodle" class="action-btn" type="button">
-          Descargar para Moodle
+        <button
+          id="btn-download"
+          class="action-btn action-btn--primary"
+          type="button"
+          data-i18n="actions.download"
+        >
+          Descarrega la WebQuest
         </button>
-        <button id="btn-save-draft" class="action-btn" type="button">Guardar borrador</button>
-        <button id="btn-load-draft" class="action-btn" type="button">Cargar borrador</button>
+        <button
+          id="btn-download-moodle"
+          class="action-btn"
+          type="button"
+          data-i18n="actions.downloadMoodle"
+        >
+          Descarrega per a Moodle
+        </button>
+        <button id="btn-save-draft" class="action-btn" type="button" data-i18n="actions.saveDraft">
+          Guarda l'esborrany
+        </button>
+        <button id="btn-load-draft" class="action-btn" type="button" data-i18n="actions.loadDraft">
+          Carrega l'esborrany
+        </button>
+        <label class="language-switcher">
+          <span class="sr-only" data-i18n="language.label">Idioma</span>
+          <select
+            id="language-select"
+            class="language-select"
+            data-i18n-aria-label="language.ariaLabel"
+          >
+            <option value="ca" data-i18n="language.options.ca">Valencià</option>
+            <option value="es" data-i18n="language.options.es">Castellà</option>
+            <option value="en" data-i18n="language.options.en">Anglés</option>
+          </select>
+        </label>
       </div>
     </header>
 
     <main class="layout">
       <section class="panel panel--form">
-        <h2>Contenido de la WebQuest</h2>
+        <h2 data-i18n="form.heading">Contingut de la WebQuest</h2>
         <form id="webquest-form" autocomplete="off">
           <div class="form-grid">
             <label>
-              <span>Título principal</span>
-              <input type="text" name="title" placeholder="Descubre el Sistema Solar" />
+              <span data-i18n="form.title.label">Títol principal</span>
+              <input
+                type="text"
+                name="title"
+                data-i18n-placeholder="form.title.placeholder"
+                placeholder="Descobreix el Sistema Solar"
+              />
             </label>
             <label>
-              <span>Subtítulo o tagline</span>
+              <span data-i18n="form.subtitle.label">Subtítol o lema</span>
               <input
                 type="text"
                 name="subtitle"
-                placeholder="Un viaje colaborativo por el espacio"
+                data-i18n-placeholder="form.subtitle.placeholder"
+                placeholder="Un viatge col·laboratiu per l'espai"
               />
             </label>
           </div>
 
           <label>
-            <span>Introducción</span>
+            <span data-i18n="form.introduction.label">Introducció</span>
             <textarea
               name="introduction"
               rows="4"
-              placeholder="Describe el contexto y motiva al alumnado."
+              data-i18n-placeholder="form.introduction.placeholder"
+              placeholder="Descriu el context i motiva l'alumnat."
             ></textarea>
           </label>
 
           <label>
-            <span>Tarea</span>
+            <span data-i18n="form.task.label">Tasca</span>
             <textarea
               name="task"
               rows="3"
-              placeholder="Explica la misión final que deben completar."
+              data-i18n-placeholder="form.task.placeholder"
+              placeholder="Explica la missió final que han de completar."
             ></textarea>
           </label>
 
           <div class="fieldset">
             <div class="fieldset__header">
-              <h3>Proceso</h3>
+              <h3 data-i18n="form.process.label">Procés</h3>
               <div class="inline-controls">
                 <textarea
                   id="process-input"
                   rows="4"
-                  placeholder="Pega uno o varios pasos (Ctrl/Cmd+Enter para añadir)"
+                  data-i18n-placeholder="form.process.placeholder"
+                  placeholder="Enganxa un o diversos passos (Ctrl/Cmd+Enter per afegir)"
                 ></textarea>
-                <button type="button" id="add-process" class="chip-btn">Añadir</button>
+                <button type="button" id="add-process" class="chip-btn" data-i18n="form.process.add">
+                  Afig
+                </button>
               </div>
             </div>
             <ul id="process-list" class="chip-list"></ul>
@@ -90,77 +129,99 @@
 
           <div class="fieldset">
             <div class="fieldset__header fieldset__header--wrap">
-              <h3>Recursos</h3>
+              <h3 data-i18n="form.resources.label">Recursos</h3>
               <div class="resource-inputs">
                 <input
                   type="text"
                   id="resource-title"
-                  placeholder="Nombre del recurso"
-                  aria-label="Nombre del recurso"
+                  data-i18n-placeholder="form.resources.titlePlaceholder"
+                  data-i18n-aria-label="form.resources.titleAria"
+                  placeholder="Nom del recurs"
+                  aria-label="Nom del recurs"
                 />
                 <input
                   type="url"
                   id="resource-link"
+                  data-i18n-placeholder="form.resources.linkPlaceholder"
+                  data-i18n-aria-label="form.resources.linkAria"
                   placeholder="https://"
-                  aria-label="Enlace del recurso"
+                  aria-label="Enllaç del recurs"
                 />
                 <input
                   type="text"
                   id="resource-notes"
-                  placeholder="Notas (opcional)"
-                  aria-label="Notas del recurso"
+                  data-i18n-placeholder="form.resources.notesPlaceholder"
+                  data-i18n-aria-label="form.resources.notesAria"
+                  placeholder="Notes (opcional)"
+                  aria-label="Notes del recurs"
                 />
-                <button type="button" id="add-resource" class="chip-btn">Añadir</button>
+                <button
+                  type="button"
+                  id="add-resource"
+                  class="chip-btn"
+                  data-i18n="form.resources.add"
+                >
+                  Afig
+                </button>
               </div>
             </div>
             <ul id="resource-list" class="resource-list"></ul>
           </div>
 
           <label>
-            <span>Evaluación</span>
+            <span data-i18n="form.evaluation.label">Avaluació</span>
             <textarea
               name="evaluation"
               rows="3"
-              placeholder="Describe la rúbrica o criterios de evaluación."
+              data-i18n-placeholder="form.evaluation.placeholder"
+              placeholder="Descriu la rúbrica o els criteris d'avaluació."
             ></textarea>
           </label>
 
           <label>
-            <span>Conclusión</span>
+            <span data-i18n="form.conclusion.label">Conclusió</span>
             <textarea
               name="conclusion"
               rows="3"
-              placeholder="Cierra la experiencia y plantea una reflexión final."
+              data-i18n-placeholder="form.conclusion.placeholder"
+              placeholder="Tanca l'experiència i proposa una reflexió final."
             ></textarea>
           </label>
 
           <label>
-            <span>Notas para el profesorado</span>
+            <span data-i18n="form.teacherNotes.label">Notes per al professorat</span>
             <textarea
               name="teacher_notes"
               rows="3"
-              placeholder="Pistas para docentes, estándares o conexiones curriculares."
+              data-i18n-placeholder="form.teacherNotes.placeholder"
+              placeholder="Pistes per a docents, estàndards o connexions curriculars."
             ></textarea>
           </label>
 
           <fieldset class="fieldset theme-fieldset">
-            <legend>Personaliza la estética</legend>
+            <legend data-i18n="form.theme.heading">Personalitza l'estètica</legend>
             <div class="theme-grid">
               <label>
-                <span>Color base</span>
+                <span data-i18n="form.theme.color">Color base</span>
                 <input type="color" name="color" value="#4355fa" />
               </label>
               <label>
-                <span>Imagen de cabecera (URL)</span>
+                <span data-i18n="form.theme.heroImage">Imatge de capçalera (URL)</span>
                 <input
                   type="url"
                   name="heroImage"
+                  data-i18n-placeholder="form.theme.heroImagePlaceholder"
                   placeholder="https://images.unsplash.com/..."
                 />
               </label>
               <label>
-                <span>Autor o créditos</span>
-                <input type="text" name="credits" placeholder="Equipo docente 2024" />
+                <span data-i18n="form.theme.credits">Autor/a o crèdits</span>
+                <input
+                  type="text"
+                  name="credits"
+                  data-i18n-placeholder="form.theme.creditsPlaceholder"
+                  placeholder="Equip docent 2024"
+                />
               </label>
             </div>
           </fieldset>
@@ -170,20 +231,85 @@
         class="layout__resizer"
         role="separator"
         aria-orientation="vertical"
-        aria-label="Ajustar ancho de la vista previa"
+        data-i18n-aria-label="layout.resizer"
+        aria-label="Ajusta l'amplària de la vista prèvia"
         tabindex="0"
       ></div>
       <section class="panel panel--preview">
         <div class="preview-wrapper">
-          <h2>Vista previa en vivo</h2>
-          <iframe id="preview" title="Vista previa de la WebQuest"></iframe>
+          <h2 data-i18n="preview.heading">Vista prèvia en viu</h2>
+          <iframe
+            id="preview"
+            title="Vista prèvia de la WebQuest"
+            data-i18n-title="preview.iframeTitle"
+          ></iframe>
         </div>
       </section>
     </main>
 
+    <div
+      class="modal modal--hidden"
+      id="moodle-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+      aria-labelledby="moodle-modal-title"
+    >
+      <div class="modal__backdrop" data-modal-close></div>
+      <div class="modal__content" tabindex="-1">
+        <button
+          class="modal__close"
+          type="button"
+          data-modal-close
+          aria-label="Tanca la finestra"
+          data-i18n-aria-label="moodleModal.close"
+        >
+          ×
+        </button>
+        <h2 id="moodle-modal-title" data-i18n="moodleModal.title">
+          Com importar la teua WebQuest a Moodle
+        </h2>
+        <p data-i18n="moodleModal.intro">
+          El paquet IMS inclou la WebQuest i el manifest necessari per a Moodle. Seguix estos passos
+          després de descarregar el fitxer ZIP:
+        </p>
+        <ol class="modal__steps">
+          <li data-i18n="moodleModal.steps.0">En Moodle, accedeix al curs i activa el mode d'edició.</li>
+          <li
+            data-i18n-html="moodleModal.steps.1"
+          >Fes clic en <strong>"Afig una activitat o un recurs"</strong> i tria <strong>"Contingut IMS"</strong>.</li>
+          <li data-i18n="moodleModal.steps.2">
+            Puja el fitxer ZIP generat per l'exportador i guarda els canvis.
+          </li>
+          <li data-i18n="moodleModal.steps.3">
+            Assegura't d'activar l'opció de mostrar la taula de continguts per a facilitar la
+            navegació entre seccions.
+          </li>
+        </ol>
+        <p class="modal__note" data-i18n="moodleModal.note">
+          Quan actualitzes la WebQuest, torna a exportar i substituïx el fitxer en Moodle per a vore
+          els canvis.
+        </p>
+        <div class="modal__actions">
+          <button class="action-btn" type="button" data-modal-close data-i18n="actions.modalCancel">
+            Cancel·la
+          </button>
+          <button
+            class="action-btn action-btn--primary"
+            type="button"
+            id="moodle-export-confirm"
+            data-modal-focus
+            data-i18n="actions.modalConfirm"
+          >
+            D'acord, exporta
+          </button>
+        </div>
+      </div>
+    </div>
+
     <template id="preview-template">
       <!DOCTYPE html>
-      <html lang="es">
+      <html lang="{{t.htmlLang}}">
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -594,8 +720,8 @@
             {{/heroImage}}
           </header>
           <main class="main-layout">
-            <nav class="sidebar" aria-label="Secciones de la WebQuest">
-              <h2>Secciones</h2>
+            <nav class="sidebar" aria-label="{{t.sidebarAria}}">
+              <h2>{{t.sidebarTitle}}</h2>
               <ul>
                 {{#sections}}
                 <li><a href="#{{id}}" data-section-target="{{id}}">{{title}}</a></li>
@@ -629,7 +755,7 @@
                     </div>
                     {{/notesHtml}}
                     <a href="{{link}}" target="_blank" rel="noopener">
-                      Visitar recurso
+                      {{t.visitResource}}
                       <span aria-hidden="true">↗</span>
                     </a>
                   </article>
@@ -639,7 +765,7 @@
                 {{#next}}
                 <div class="page__nav">
                   <a class="page__next" href="#{{id}}" data-next-target="{{id}}">
-                    Siguiente: {{label}} <span aria-hidden="true">&rarr;</span>
+                    {{text}} <span aria-hidden="true">&rarr;</span>
                   </a>
                 </div>
                 {{/next}}
@@ -649,7 +775,7 @@
           </main>
           {{#credits}}
           <footer>
-            <p>Creado por {{credits}}</p>
+            <p>{{t.footerPrefix}} {{credits}}</p>
           </footer>
           {{/credits}}
           <script>

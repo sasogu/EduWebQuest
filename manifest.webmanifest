@@ -1,7 +1,7 @@
 {
   "name": "EduWebQuest Builder",
   "short_name": "WebQuest",
-  "description": "Crea WebQuests modernas listas para compartir o exportar a Moodle, incluso sin conexión.",
+  "description": "Crea WebQuests modernes llestes per compartir o exportar a Moodle, fins i tot sense connexió.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

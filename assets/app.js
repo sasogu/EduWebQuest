@@ -19,41 +19,674 @@ const layout = document.querySelector(".layout");
 const formPanel = document.querySelector(".panel--form");
 const previewPanel = document.querySelector(".panel--preview");
 const layoutResizer = document.querySelector(".layout__resizer");
+const languageSelect = document.getElementById("language-select");
+const moodleModal = document.getElementById("moodle-modal");
+const moodleExportConfirmBtn = document.getElementById("moodle-export-confirm");
 
-const SERVICE_WORKER_VERSION = "v1.0.0";
+const SERVICE_WORKER_VERSION = "v1.1.0";
+const LANG_STORAGE_KEY = "eduwebquest:lang";
+let lastModalTrigger = null;
+let previousBodyOverflow = "";
+
+const translations = {
+  ca: {
+    locale: { code: "ca", htmlLang: "ca" },
+    app: {
+      beta: "Beta",
+      title: "EduWebQuest Builder",
+      tagline: "Crea WebQuests modernes llestes per a GitHub Pages."
+    },
+    actions: {
+      copy: "Copia l'HTML",
+      download: "Descarrega la WebQuest",
+      downloadMoodle: "Descarrega per a Moodle",
+      saveDraft: "Guarda l'esborrany",
+      loadDraft: "Carrega l'esborrany",
+      modalCancel: "Cancel·la",
+      modalConfirm: "D'acord, exporta",
+      copySuccess: "Copiat ✓",
+      copyFallback: "Còpia manual",
+      downloadSuccess: "Descarregat ✓",
+      moodleUnavailable: "JSZip no disponible",
+      moodleSuccess: "Paquet Moodle ✓",
+      moodleError: "Error en generar",
+      saveDraftSuccess: "Esborrany descarregat ✓",
+      saveDraftError: "Error en guardar",
+      loadDraftSuccess: "Esborrany carregat ✓",
+      loadDraftError: "Error en carregar"
+    },
+    language: {
+      label: "Idioma",
+      ariaLabel: "Canvia l'idioma de l'aplicació",
+      options: {
+        ca: "Valencià",
+        es: "Castellà",
+        en: "Anglés"
+      }
+    },
+    form: {
+      heading: "Contingut de la WebQuest",
+      title: {
+        label: "Títol principal",
+        placeholder: "Descobreix el Sistema Solar"
+      },
+      subtitle: {
+        label: "Subtítol o lema",
+        placeholder: "Un viatge col·laboratiu per l'espai"
+      },
+      introduction: {
+        label: "Introducció",
+        placeholder: "Descriu el context i motiva l'alumnat."
+      },
+      task: {
+        label: "Tasca",
+        placeholder: "Explica la missió final que han de completar."
+      },
+      process: {
+        label: "Procés",
+        placeholder: "Enganxa un o diversos passos (Ctrl/Cmd+Enter per afegir)",
+        add: "Afig"
+      },
+      resources: {
+        label: "Recursos",
+        titlePlaceholder: "Nom del recurs",
+        titleAria: "Nom del recurs",
+        linkPlaceholder: "https://",
+        linkAria: "Enllaç del recurs",
+        notesPlaceholder: "Notes (opcional)",
+        notesAria: "Notes del recurs",
+        add: "Afig"
+      },
+      evaluation: {
+        label: "Avaluació",
+        placeholder: "Descriu la rúbrica o els criteris d'avaluació."
+      },
+      conclusion: {
+        label: "Conclusió",
+        placeholder: "Tanca l'experiència i proposa una reflexió final."
+      },
+      teacherNotes: {
+        label: "Notes per al professorat",
+        placeholder: "Pistes per a docents, estàndards o connexions curriculars."
+      },
+      theme: {
+        heading: "Personalitza l'estètica",
+        color: "Color base",
+        heroImage: "Imatge de capçalera (URL)",
+        heroImagePlaceholder: "https://images.unsplash.com/...",
+        credits: "Autor/a o crèdits",
+        creditsPlaceholder: "Equip docent 2024"
+      }
+    },
+    layout: {
+      resizer: "Ajusta l'amplària de la vista prèvia"
+    },
+    preview: {
+      heading: "Vista prèvia en viu",
+      iframeTitle: "Vista prèvia de la WebQuest",
+      sidebarTitle: "Seccions",
+      sidebarAria: "Seccions de la WebQuest",
+      visitResource: "Visita el recurs",
+      next: "Següent: {{title}}",
+      footerPrefix: "Creat per",
+      emptyState: "Afig contingut des del panell de l'esquerra per a generar la teua WebQuest.",
+      htmlLang: "ca"
+    },
+    sections: {
+      introduction: "Introducció",
+      task: "Tasca",
+      process: "Procés",
+      resources: "Recursos",
+      evaluation: "Avaluació",
+      conclusion: "Conclusió",
+      teacherNotes: "Notes per al professorat"
+    },
+    moodleModal: {
+      close: "Tanca la finestra",
+      title: "Com importar la teua WebQuest a Moodle",
+      intro:
+        "El paquet IMS inclou la WebQuest i el manifest necessari per a Moodle. Seguix estos passos després de descarregar el fitxer ZIP:",
+      steps: [
+        "En Moodle, accedeix al curs i activa el mode d'edició.",
+        'Fes clic en <strong>"Afig una activitat o un recurs"</strong> i tria <strong>"Contingut IMS"</strong>.',
+        "Puja el fitxer ZIP generat per l'exportador i guarda els canvis.",
+        "Assegura't d'activar l'opció de mostrar la taula de continguts per a facilitar la navegació entre seccions."
+      ],
+      note:
+        "Quan actualitzes la WebQuest, torna a exportar i substituïx el fitxer en Moodle per a vore els canvis."
+    },
+    ui: {
+      process: {
+        edit: "Edita",
+        editAria: "Edita el pas {{index}}",
+        deleteAria: "Elimina el pas {{index}}"
+      },
+      resources: {
+        untitled: "Recurs sense títol",
+        edit: "Edita",
+        delete: "Elimina",
+        deleteAria: "Elimina el recurs",
+        titleLabel: "Títol",
+        linkLabel: "Enllaç (http/https)",
+        notesLabel: "Notes (opcional)",
+        save: "Guarda",
+        cancel: "Cancel·la"
+      }
+    },
+    validation: {
+      resourceTitle: "Introdueix un títol.",
+      resourceLink: "Introdueix un enllaç vàlid que comence per http o https."
+    },
+    general: {
+      untitled: "WebQuest sense títol"
+    },
+    draft: {
+      invalid: "Les dades de l'esborrany no són vàlides."
+    }
+  },
+  es: {
+    locale: { code: "es", htmlLang: "es" },
+    app: {
+      beta: "Beta",
+      title: "EduWebQuest Builder",
+      tagline: "Crea WebQuests modernas listas para GitHub Pages."
+    },
+    actions: {
+      copy: "Copiar HTML",
+      download: "Descargar WebQuest",
+      downloadMoodle: "Descargar para Moodle",
+      saveDraft: "Guardar borrador",
+      loadDraft: "Cargar borrador",
+      modalCancel: "Cancelar",
+      modalConfirm: "Entendido, exportar",
+      copySuccess: "Copiado ✓",
+      copyFallback: "Copia manual",
+      downloadSuccess: "Descargado ✓",
+      moodleUnavailable: "JSZip no disponible",
+      moodleSuccess: "Paquete Moodle ✓",
+      moodleError: "Error al generar",
+      saveDraftSuccess: "Borrador descargado ✓",
+      saveDraftError: "Error al guardar",
+      loadDraftSuccess: "Borrador cargado ✓",
+      loadDraftError: "Error al cargar"
+    },
+    language: {
+      label: "Idioma",
+      ariaLabel: "Cambia el idioma de la aplicación",
+      options: {
+        ca: "Valenciano",
+        es: "Castellano",
+        en: "Inglés"
+      }
+    },
+    form: {
+      heading: "Contenido de la WebQuest",
+      title: {
+        label: "Título principal",
+        placeholder: "Descubre el Sistema Solar"
+      },
+      subtitle: {
+        label: "Subtítulo o tagline",
+        placeholder: "Un viaje colaborativo por el espacio"
+      },
+      introduction: {
+        label: "Introducción",
+        placeholder: "Describe el contexto y motiva al alumnado."
+      },
+      task: {
+        label: "Tarea",
+        placeholder: "Explica la misión final que deben completar."
+      },
+      process: {
+        label: "Proceso",
+        placeholder: "Pega uno o varios pasos (Ctrl/Cmd+Enter para añadir)",
+        add: "Añadir"
+      },
+      resources: {
+        label: "Recursos",
+        titlePlaceholder: "Nombre del recurso",
+        titleAria: "Nombre del recurso",
+        linkPlaceholder: "https://",
+        linkAria: "Enlace del recurso",
+        notesPlaceholder: "Notas (opcional)",
+        notesAria: "Notas del recurso",
+        add: "Añadir"
+      },
+      evaluation: {
+        label: "Evaluación",
+        placeholder: "Describe la rúbrica o criterios de evaluación."
+      },
+      conclusion: {
+        label: "Conclusión",
+        placeholder: "Cierra la experiencia y plantea una reflexión final."
+      },
+      teacherNotes: {
+        label: "Notas para el profesorado",
+        placeholder: "Pistas para docentes, estándares o conexiones curriculares."
+      },
+      theme: {
+        heading: "Personaliza la estética",
+        color: "Color base",
+        heroImage: "Imagen de cabecera (URL)",
+        heroImagePlaceholder: "https://images.unsplash.com/...",
+        credits: "Autor o créditos",
+        creditsPlaceholder: "Equipo docente 2024"
+      }
+    },
+    layout: {
+      resizer: "Ajusta el ancho de la vista previa"
+    },
+    preview: {
+      heading: "Vista previa en vivo",
+      iframeTitle: "Vista previa de la WebQuest",
+      sidebarTitle: "Secciones",
+      sidebarAria: "Secciones de la WebQuest",
+      visitResource: "Visitar recurso",
+      next: "Siguiente: {{title}}",
+      footerPrefix: "Creado por",
+      emptyState: "Añade contenido desde el panel de la izquierda para generar tu WebQuest.",
+      htmlLang: "es"
+    },
+    sections: {
+      introduction: "Introducción",
+      task: "Tarea",
+      process: "Proceso",
+      resources: "Recursos",
+      evaluation: "Evaluación",
+      conclusion: "Conclusión",
+      teacherNotes: "Notas para el profesorado"
+    },
+    moodleModal: {
+      close: "Cerrar ventana",
+      title: "Cómo importar tu WebQuest en Moodle",
+      intro:
+        "El paquete IMS incluye la WebQuest y el manifiesto necesario para Moodle. Sigue estos pasos después de descargar el archivo ZIP:",
+      steps: [
+        "En Moodle, accede al curso y activa el modo de edición.",
+        'Haz clic en <strong>"Añadir una actividad o un recurso"</strong> y elige <strong>"Contenido IMS"</strong>.',
+        "Sube el archivo ZIP generado por el exportador y guarda los cambios.",
+        "Asegúrate de activar la opción de mostrar la tabla de contenidos para facilitar la navegación entre secciones."
+      ],
+      note:
+        "Cuando actualices la WebQuest, vuelve a exportar y sustituye el archivo en Moodle para ver los cambios."
+    },
+    ui: {
+      process: {
+        edit: "Editar",
+        editAria: "Editar paso {{index}}",
+        deleteAria: "Eliminar paso {{index}}"
+      },
+      resources: {
+        untitled: "Recurso sin título",
+        edit: "Editar",
+        delete: "Eliminar",
+        deleteAria: "Eliminar recurso",
+        titleLabel: "Título",
+        linkLabel: "Enlace (http/https)",
+        notesLabel: "Notas (opcional)",
+        save: "Guardar",
+        cancel: "Cancelar"
+      }
+    },
+    validation: {
+      resourceTitle: "Introduce un título.",
+      resourceLink: "Introduce un enlace válido que comience con http o https."
+    },
+    general: {
+      untitled: "WebQuest sin título"
+    },
+    draft: {
+      invalid: "Datos de borrador no válidos."
+    }
+  },
+  en: {
+    locale: { code: "en", htmlLang: "en" },
+    app: {
+      beta: "Beta",
+      title: "EduWebQuest Builder",
+      tagline: "Build modern WebQuests ready for GitHub Pages."
+    },
+    actions: {
+      copy: "Copy HTML",
+      download: "Download WebQuest",
+      downloadMoodle: "Download for Moodle",
+      saveDraft: "Save draft",
+      loadDraft: "Load draft",
+      modalCancel: "Cancel",
+      modalConfirm: "Got it, export",
+      copySuccess: "Copied ✓",
+      copyFallback: "Copy manually",
+      downloadSuccess: "Downloaded ✓",
+      moodleUnavailable: "JSZip unavailable",
+      moodleSuccess: "Moodle package ✓",
+      moodleError: "Export failed",
+      saveDraftSuccess: "Draft downloaded ✓",
+      saveDraftError: "Save error",
+      loadDraftSuccess: "Draft loaded ✓",
+      loadDraftError: "Load error"
+    },
+    language: {
+      label: "Language",
+      ariaLabel: "Change app language",
+      options: {
+        ca: "Valencian",
+        es: "Spanish",
+        en: "English"
+      }
+    },
+    form: {
+      heading: "WebQuest content",
+      title: {
+        label: "Main title",
+        placeholder: "Discover the Solar System"
+      },
+      subtitle: {
+        label: "Subtitle or tagline",
+        placeholder: "A collaborative journey through space"
+      },
+      introduction: {
+        label: "Introduction",
+        placeholder: "Describe the context and motivate students."
+      },
+      task: {
+        label: "Task",
+        placeholder: "Explain the final mission they must complete."
+      },
+      process: {
+        label: "Process",
+        placeholder: "Paste one or more steps (Ctrl/Cmd+Enter to add)",
+        add: "Add"
+      },
+      resources: {
+        label: "Resources",
+        titlePlaceholder: "Resource name",
+        titleAria: "Resource name",
+        linkPlaceholder: "https://",
+        linkAria: "Resource link",
+        notesPlaceholder: "Notes (optional)",
+        notesAria: "Resource notes",
+        add: "Add"
+      },
+      evaluation: {
+        label: "Evaluation",
+        placeholder: "Describe the rubric or evaluation criteria."
+      },
+      conclusion: {
+        label: "Conclusion",
+        placeholder: "Wrap up the experience and invite reflection."
+      },
+      teacherNotes: {
+        label: "Notes for teachers",
+        placeholder: "Hints for teachers, standards or curriculum links."
+      },
+      theme: {
+        heading: "Customize the look",
+        color: "Base color",
+        heroImage: "Header image (URL)",
+        heroImagePlaceholder: "https://images.unsplash.com/...",
+        credits: "Author or credits",
+        creditsPlaceholder: "Teaching team 2024"
+      }
+    },
+    layout: {
+      resizer: "Adjust preview width"
+    },
+    preview: {
+      heading: "Live preview",
+      iframeTitle: "WebQuest preview",
+      sidebarTitle: "Sections",
+      sidebarAria: "WebQuest sections",
+      visitResource: "Visit resource",
+      next: "Next: {{title}}",
+      footerPrefix: "Created by",
+      emptyState: "Add content from the left panel to generate your WebQuest.",
+      htmlLang: "en"
+    },
+    sections: {
+      introduction: "Introduction",
+      task: "Task",
+      process: "Process",
+      resources: "Resources",
+      evaluation: "Evaluation",
+      conclusion: "Conclusion",
+      teacherNotes: "Notes for teachers"
+    },
+    moodleModal: {
+      close: "Close dialog",
+      title: "How to import your WebQuest into Moodle",
+      intro:
+        "The IMS package includes the WebQuest and the manifest Moodle needs. Follow these steps after downloading the ZIP file:",
+      steps: [
+        "In Moodle, open the course and turn editing on.",
+        'Click <strong>"Add an activity or resource"</strong> and choose <strong>"IMS content"</strong>.',
+        "Upload the ZIP file generated by the exporter and save.",
+        "Enable the table of contents option so learners can jump between sections."
+      ],
+      note:
+        "Whenever you update the WebQuest, export again and replace the file in Moodle to see the changes."
+    },
+    ui: {
+      process: {
+        edit: "Edit",
+        editAria: "Edit step {{index}}",
+        deleteAria: "Delete step {{index}}"
+      },
+      resources: {
+        untitled: "Untitled resource",
+        edit: "Edit",
+        delete: "Delete",
+        deleteAria: "Delete resource",
+        titleLabel: "Title",
+        linkLabel: "Link (http/https)",
+        notesLabel: "Notes (optional)",
+        save: "Save",
+        cancel: "Cancel"
+      }
+    },
+    validation: {
+      resourceTitle: "Please enter a title.",
+      resourceLink: "Enter a valid link that starts with http or https."
+    },
+    general: {
+      untitled: "Untitled WebQuest"
+    },
+    draft: {
+      invalid: "Draft data is not valid."
+    }
+  }
+};
+
+let currentLocale = "ca";
+
+function getTranslationDict(locale) {
+  if (translations[locale]) {
+    return translations[locale];
+  }
+  return translations.ca;
+}
+
+function resolveTranslation(dict, path) {
+  if (!dict || !path) return null;
+  const segments = path.split(".");
+  let current = dict;
+  for (const rawSegment of segments) {
+    const segment = rawSegment.trim();
+    if (!segment) continue;
+    if (Array.isArray(current)) {
+      const index = Number(segment);
+      if (!Number.isInteger(index) || index < 0 || index >= current.length) {
+        return null;
+      }
+      current = current[index];
+      continue;
+    }
+    if (current && Object.prototype.hasOwnProperty.call(current, segment)) {
+      current = current[segment];
+    } else {
+      return null;
+    }
+  }
+  return current;
+}
+
+function interpolate(template, params = {}) {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) =>
+    Object.prototype.hasOwnProperty.call(params, key) ? String(params[key]) : ""
+  );
+}
+
+function translate(key, params = {}, locale = currentLocale) {
+  const dict = getTranslationDict(locale);
+  const raw = resolveTranslation(dict, key);
+  if (raw == null) {
+    return "";
+  }
+  if (typeof raw === "function") {
+    return raw(params, locale);
+  }
+  if (typeof raw === "string") {
+    if (!params || Object.keys(params).length === 0) {
+      return raw;
+    }
+    return interpolate(raw, params);
+  }
+  return raw;
+}
+
+function detectInitialLocale() {
+  let stored = null;
+  try {
+    stored = localStorage.getItem(LANG_STORAGE_KEY);
+  } catch (_) {
+    // ignore storage access issues
+  }
+  if (stored && translations[stored]) {
+    return stored;
+  }
+  const navigatorLanguage =
+    (typeof navigator !== "undefined" && (navigator.language || navigator.userLanguage)) || "";
+  const normalized = navigatorLanguage.toLowerCase().slice(0, 2);
+  if (translations[normalized]) {
+    return normalized;
+  }
+  return "ca";
+}
+
+function applyTranslations(locale = currentLocale) {
+  const dict = getTranslationDict(locale);
+  document.documentElement.lang = dict.locale.htmlLang;
+  document.title = translate("app.title", {}, locale);
+
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    const key = element.getAttribute("data-i18n");
+    if (!key) return;
+    const value = translate(key, {}, locale);
+    if (value !== null && value !== undefined) {
+      element.textContent = value;
+    }
+  });
+
+  document.querySelectorAll("[data-i18n-html]").forEach((element) => {
+    const key = element.getAttribute("data-i18n-html");
+    if (!key) return;
+    const value = translate(key, {}, locale);
+    if (value !== null && value !== undefined) {
+      element.innerHTML = value;
+    }
+  });
+
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+    const key = element.getAttribute("data-i18n-placeholder");
+    if (!key) return;
+    const value = translate(key, {}, locale);
+    if (value !== null && value !== undefined) {
+      element.setAttribute("placeholder", value);
+    }
+  });
+
+  document.querySelectorAll("[data-i18n-title]").forEach((element) => {
+    const key = element.getAttribute("data-i18n-title");
+    if (!key) return;
+    const value = translate(key, {}, locale);
+    if (value !== null && value !== undefined) {
+      element.setAttribute("title", value);
+    }
+  });
+
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+    const key = element.getAttribute("data-i18n-aria-label");
+    if (!key) return;
+    const value = translate(key, {}, locale);
+    if (value !== null && value !== undefined) {
+      element.setAttribute("aria-label", value);
+    }
+  });
+
+  if (languageSelect) {
+    languageSelect.value = dict.locale.code;
+    languageSelect.setAttribute("aria-label", translate("language.ariaLabel", {}, locale));
+  }
+}
+
+function setLocale(locale) {
+  const dict = getTranslationDict(locale);
+  currentLocale = dict.locale.code;
+  try {
+    localStorage.setItem(LANG_STORAGE_KEY, currentLocale);
+  } catch (_) {
+    // ignore storage errors
+  }
+  applyTranslations(currentLocale);
+  renderProcessList();
+  renderResourceList();
+  updatePreview();
+}
+
+function initializeLocale() {
+  currentLocale = detectInitialLocale();
+  applyTranslations(currentLocale);
+  if (languageSelect) {
+    languageSelect.value = currentLocale;
+  }
+  try {
+    localStorage.setItem(LANG_STORAGE_KEY, currentLocale);
+  } catch (_) {
+    // ignore storage errors
+  }
+}
 
 const defaultState = {
-  title: "Exploradores del Sistema Solar",
-  subtitle: "Un viaje colaborativo para comprender nuestro vecindario cósmico",
-  introduction: `El comando espacial necesita un nuevo equipo de exploradores que documente los secretos del sistema solar. 
-Durante los próximos días trabajaréis en grupos para analizar planetas, lunas y fenómenos únicos.`,
-  task: `Preparad una exposición interactiva donde cada equipo presente un cuerpo celeste. 
-La exposición debe incluir datos clave, curiosidades y un recurso multimedia.`,
+  title: "Exploradors del Sistema Solar",
+  subtitle: "Un viatge col·laboratiu per comprendre el nostre veïnatge còsmic",
+  introduction: `El comandament espacial necessita un nou equip d'exploradors que documente els secrets del sistema solar. 
+Durant els pròxims dies treballareu en grups per analitzar planetes, llunes i fenòmens singulars.`,
+  task: `Prepareu una exposició interactiva on cada equip presente un cos celeste. 
+La proposta ha d'incloure dades clau, curiositats i un recurs multimèdia.`,
   process: [
-    "Formad equipos de 3 personas y elegid un planeta o luna.",
-    "Investigad en los recursos propuestos y buscad al menos una fuente adicional fiable.",
-    "Elaborad una presentación creativa con apoyo visual y un experimento o maqueta.",
-    "Compartid vuestras conclusiones en una galería con el resto de la clase."
+    "Formeu equips de 3 persones i escolliu un planeta o una lluna.",
+    "Investigueu amb els recursos proposats i busqueu com a mínim una font addicional fiable.",
+    "Elaboreu una presentació creativa amb suport visual i un experiment o maqueta.",
+    "Compartiu les vostres conclusions en una galeria amb la resta de la classe."
   ],
   resources: [
     {
-      title: "Tour interactivo por el sistema solar",
+      title: "Visita interactiva al sistema solar",
       link: "https://solarsystem.nasa.gov",
-      notes: "Recorre planetas y misiones oficiales de la NASA."
+      notes: "Recorre planetes i missions oficials de la NASA."
     },
     {
       title: "Simulador orbital PhET",
       link: "https://phet.colorado.edu/sims/html/gravity-and-orbits/latest/gravity-and-orbits_es.html",
-      notes: "Explora la fuerza gravitatoria de forma visual."
+      notes: "Explora la força gravitacional de manera visual."
     }
   ],
-  evaluation: `La rúbrica valora: 1) calidad de la investigación, 2) creatividad de la presentación, 3) colaboración dentro del equipo y 4) comunicación oral.`,
-  conclusion: `Habéis completado con éxito vuestra misión. ¿Qué nuevos interrogantes científicos os gustaría investigar a partir de ahora?`,
-  teacher_notes: `Se sugiere reservar una sesión de laboratorio para construir maquetas. Vincular con el estándar 5.ESS1-2.`,
+  evaluation: `La rúbrica valora: 1) qualitat de la investigació, 2) creativitat de la presentació, 3) col·laboració dins de l'equip i 4) comunicació oral.`,
+  conclusion: `Heu completat amb èxit la vostra missió. Quins nous interrogants científics us agradaria investigar a partir d'ara?`,
+  teacher_notes: `Es recomana reservar una sessió de laboratori per construir maquetes. Vincula amb l'estàndard 5.ESS1-2.`,
   color: "#4355fa",
   heroImage:
     "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1280&q=80",
-  credits: "Equipo docente de Ciencias · 2024"
+  credits: "Equip docent de Ciències · 2024"
 };
 
 const state = JSON.parse(JSON.stringify(defaultState));
@@ -130,7 +763,7 @@ function getTitle() {
   if (title) {
     return title;
   }
-  return "WebQuest sin título";
+  return translate("general.untitled");
 }
 
 function trimUrlMatch(match) {
@@ -820,7 +1453,7 @@ function normalizeDraftData(raw) {
 function applyDraftPayload(rawDraft, { skipPersist = false } = {}) {
   const normalized = normalizeDraftData(rawDraft);
   if (!normalized) {
-    throw new Error("Datos de borrador no válidos.");
+    throw new Error(translate("draft.invalid"));
   }
   state.title = normalized.title || "";
   state.subtitle = normalized.subtitle || "";
@@ -907,7 +1540,7 @@ function startEditingProcessStep(index) {
   input.value = currentValue;
   const lineCount = currentValue.split(/\r?\n/).length;
   input.rows = Math.max(2, Math.min(8, lineCount));
-  input.setAttribute("aria-label", `Editar paso ${index + 1}`);
+  input.setAttribute("aria-label", translate("ui.process.editAria", { index: index + 1 }));
   item.classList.add("chip--editing");
   actions.hidden = true;
   item.insertBefore(input, actions);
@@ -1156,7 +1789,8 @@ function buildMoodleManifest(title, entryFile, sections = []) {
 }
 
 function getRenderData(options = {}) {
-  const { isMoodle = false } = options;
+  const { isMoodle = false, locale = currentLocale } = options;
+  const dict = getTranslationDict(locale);
   const renderRich = (value) => renderMarkdown(value);
   const subtitleHtml = renderMarkdown(state.subtitle, { inline: true });
   const introduction = renderRich(state.introduction);
@@ -1185,7 +1819,7 @@ function getRenderData(options = {}) {
   if (introduction) {
     sections.push({
       id: "introduccion",
-      title: "Introducción",
+      title: dict.sections.introduction,
       body: introduction,
       isRich: true
     });
@@ -1194,7 +1828,7 @@ function getRenderData(options = {}) {
   if (task) {
     sections.push({
       id: "tarea",
-      title: "Tarea",
+      title: dict.sections.task,
       body: task,
       isRich: true
     });
@@ -1203,7 +1837,7 @@ function getRenderData(options = {}) {
   if (processSteps.length) {
     sections.push({
       id: "proceso",
-      title: "Proceso",
+      title: dict.sections.process,
       process: processRendered,
       isProcess: true
     });
@@ -1212,7 +1846,7 @@ function getRenderData(options = {}) {
   if (resources.length) {
     sections.push({
       id: "recursos",
-      title: "Recursos",
+      title: dict.sections.resources,
       resources,
       isResources: true
     });
@@ -1221,7 +1855,7 @@ function getRenderData(options = {}) {
   if (evaluation) {
     sections.push({
       id: "evaluacion",
-      title: "Evaluación",
+      title: dict.sections.evaluation,
       body: evaluation,
       isRich: true
     });
@@ -1230,7 +1864,7 @@ function getRenderData(options = {}) {
   if (conclusion) {
     sections.push({
       id: "conclusion",
-      title: "Conclusión",
+      title: dict.sections.conclusion,
       body: conclusion,
       isRich: true
     });
@@ -1239,7 +1873,7 @@ function getRenderData(options = {}) {
   if (teacherNotes) {
     sections.push({
       id: "profesorado",
-      title: "Notas para el profesorado",
+      title: dict.sections.teacherNotes,
       body: teacherNotes,
       isRich: true
     });
@@ -1248,8 +1882,8 @@ function getRenderData(options = {}) {
   if (!sections.length) {
     sections.push({
       id: "introduccion",
-      title: "Introducción",
-      body: renderMarkdown("Añade contenido desde el panel de la izquierda para generar tu WebQuest."),
+      title: dict.sections.introduction,
+      body: renderMarkdown(dict.preview.emptyState),
       isRich: true
     });
   }
@@ -1259,7 +1893,8 @@ function getRenderData(options = {}) {
     if (next) {
       section.next = {
         id: next.id,
-        label: next.title
+        label: next.title,
+        text: translate("preview.next", { title: next.title }, locale)
       };
     }
   });
@@ -1268,7 +1903,7 @@ function getRenderData(options = {}) {
   const layoutClass = isMoodle ? "main-layout main-layout--single" : "main-layout";
 
   return {
-    title: state.title ? escapeHtml(state.title) : "Nueva WebQuest",
+    title: state.title ? escapeHtml(state.title) : escapeHtml(translate("general.untitled", {}, locale)),
     subtitle: state.subtitle ? escapeHtml(state.subtitle) : "",
     subtitleHtml,
     sections,
@@ -1277,12 +1912,19 @@ function getRenderData(options = {}) {
     credits: state.credits ? escapeHtml(state.credits) : "",
     isMoodle,
     showSidebar,
-    layoutClass
+    layoutClass,
+    t: {
+      htmlLang: dict.preview.htmlLang,
+      sidebarTitle: dict.preview.sidebarTitle,
+      sidebarAria: dict.preview.sidebarAria,
+      visitResource: dict.preview.visitResource,
+      footerPrefix: dict.preview.footerPrefix
+    }
   };
 }
 
 function updatePreview() {
-  const data = getRenderData();
+  const data = getRenderData({ locale: currentLocale });
   const html = renderTemplate(templateSource, data);
   previewFrame.srcdoc = html;
 }
@@ -1328,13 +1970,14 @@ function renderProcessList() {
     editBtn.type = "button";
     editBtn.className = "chip__btn chip__btn--edit";
     editBtn.dataset.index = String(index);
-    editBtn.textContent = "Editar";
+    editBtn.textContent = translate("ui.process.edit");
+    editBtn.setAttribute("aria-label", translate("ui.process.editAria", { index: index + 1 }));
 
     const deleteBtn = document.createElement("button");
     deleteBtn.type = "button";
     deleteBtn.className = "chip__btn chip__btn--delete";
     deleteBtn.dataset.index = String(index);
-    deleteBtn.setAttribute("aria-label", "Eliminar paso");
+    deleteBtn.setAttribute("aria-label", translate("ui.process.deleteAria", { index: index + 1 }));
     deleteBtn.textContent = "×";
 
     actions.append(editBtn, deleteBtn);
@@ -1356,7 +1999,7 @@ function renderResourceList() {
     body.className = "resource-item__body";
 
     const title = document.createElement("strong");
-    title.textContent = resource.title ? resource.title : "Recurso sin título";
+    title.textContent = resource.title ? resource.title : translate("ui.resources.untitled");
     body.appendChild(title);
 
     const safeLink = sanitizeUrl(resource.link);
@@ -1386,14 +2029,15 @@ function renderResourceList() {
     editBtn.type = "button";
     editBtn.className = "resource-item__btn resource-item__btn--edit";
     editBtn.dataset.index = String(index);
-    editBtn.textContent = "Editar";
+    editBtn.textContent = translate("ui.resources.edit");
+    editBtn.setAttribute("aria-label", translate("ui.resources.edit"));
 
     const deleteBtn = document.createElement("button");
     deleteBtn.type = "button";
     deleteBtn.className = "resource-item__btn resource-item__btn--delete";
     deleteBtn.dataset.index = String(index);
-    deleteBtn.setAttribute("aria-label", "Eliminar recurso");
-    deleteBtn.textContent = "Eliminar";
+    deleteBtn.setAttribute("aria-label", translate("ui.resources.deleteAria"));
+    deleteBtn.textContent = translate("ui.resources.delete");
 
     actions.append(editBtn, deleteBtn);
     item.appendChild(body);
@@ -1431,7 +2075,7 @@ function startEditingResourceItem(index) {
   const titleField = document.createElement("label");
   titleField.className = "resource-edit__field";
   const titleLabel = document.createElement("span");
-  titleLabel.textContent = "Título";
+  titleLabel.textContent = translate("ui.resources.titleLabel");
   const titleInput = document.createElement("input");
   titleInput.type = "text";
   titleInput.name = "title";
@@ -1442,7 +2086,7 @@ function startEditingResourceItem(index) {
   const linkField = document.createElement("label");
   linkField.className = "resource-edit__field";
   const linkLabel = document.createElement("span");
-  linkLabel.textContent = "Enlace (http/https)";
+  linkLabel.textContent = translate("ui.resources.linkLabel");
   const linkInput = document.createElement("input");
   linkInput.type = "url";
   linkInput.name = "link";
@@ -1453,7 +2097,7 @@ function startEditingResourceItem(index) {
   const notesField = document.createElement("label");
   notesField.className = "resource-edit__field";
   const notesLabel = document.createElement("span");
-  notesLabel.textContent = "Notas (opcional)";
+  notesLabel.textContent = translate("ui.resources.notesLabel");
   const notesInput = document.createElement("textarea");
   notesInput.name = "notes";
   notesInput.value = resource.notes ?? "";
@@ -1464,11 +2108,11 @@ function startEditingResourceItem(index) {
   const saveButton = document.createElement("button");
   saveButton.type = "submit";
   saveButton.className = "resource-edit__save";
-  saveButton.textContent = "Guardar";
+  saveButton.textContent = translate("ui.resources.save");
   const cancelButton = document.createElement("button");
   cancelButton.type = "button";
   cancelButton.className = "resource-edit__cancel";
-  cancelButton.textContent = "Cancelar";
+  cancelButton.textContent = translate("ui.resources.cancel");
   controls.append(saveButton, cancelButton);
 
   form.append(titleField, linkField, notesField, controls);
@@ -1499,7 +2143,7 @@ function startEditingResourceItem(index) {
 
     const title = titleInput.value.trim();
     if (!title) {
-      titleInput.setCustomValidity("Introduce un título.");
+      titleInput.setCustomValidity(translate("validation.resourceTitle"));
       titleInput.reportValidity();
       return;
     }
@@ -1507,7 +2151,7 @@ function startEditingResourceItem(index) {
     const rawLink = linkInput.value.trim();
     const sanitizedLink = sanitizeUrl(rawLink);
     if (!sanitizedLink) {
-      linkInput.setCustomValidity("Introduce un enlace válido que comience con http o https.");
+      linkInput.setCustomValidity(translate("validation.resourceLink"));
       linkInput.reportValidity();
       return;
     }
@@ -1578,7 +2222,7 @@ function addResourceItem() {
 
   const sanitizedLink = sanitizeUrl(link);
   if (!sanitizedLink) {
-    resourceLinkInput.setCustomValidity("Introduce un enlace válido que comience con http o https.");
+    resourceLinkInput.setCustomValidity(translate("validation.resourceLink"));
     resourceLinkInput.reportValidity();
     return;
   }
@@ -1649,7 +2293,7 @@ function handleResourceClick(event) {
 }
 
 function buildExportHtml(options = {}) {
-  const data = getRenderData(options);
+  const data = getRenderData({ locale: currentLocale, ...options });
   const html = renderTemplate(templateSource, data);
   return html.trim();
 }
@@ -1658,9 +2302,9 @@ async function handleCopyHtml() {
   const html = buildExportHtml();
   try {
     await navigator.clipboard.writeText(html);
-    animateAction(copyBtn, "Copiado ✓");
+    animateAction(copyBtn, translate("actions.copySuccess"));
   } catch (_) {
-    animateAction(copyBtn, "Copia manual", true);
+    animateAction(copyBtn, translate("actions.copyFallback"), true);
     console.warn("No fue posible copiar en el portapapeles desde este navegador.");
   }
 }
@@ -1678,19 +2322,32 @@ function handleDownloadHtml() {
     URL.revokeObjectURL(link.href);
     link.remove();
   });
-  animateAction(downloadBtn, "Descargado ✓");
+  animateAction(downloadBtn, translate("actions.downloadSuccess"));
 }
 
-async function handleDownloadMoodle() {
+function handleDownloadMoodleClick(event) {
+  if (event) {
+    event.preventDefault();
+  }
   if (!moodleBtn) return;
+  if (moodleModal) {
+    openMoodleModal(moodleBtn);
+  } else {
+    performMoodleExport();
+  }
+}
+
+async function performMoodleExport() {
+  if (!moodleBtn) return;
+  closeMoodleModal();
   if (typeof window.JSZip === "undefined") {
-    animateAction(moodleBtn, "JSZip no disponible", true);
+    animateAction(moodleBtn, translate("actions.moodleUnavailable"), true);
     console.warn("JSZip no está cargado. Verifica la conexión o el script CDN.");
     return;
   }
 
   const zip = new window.JSZip();
-  const data = getRenderData({ isMoodle: true });
+  const data = getRenderData({ isMoodle: true, locale: currentLocale });
   const html = renderTemplate(templateSource, data).trim();
   const entryFile = "index.html";
   const title = getTitle();
@@ -1709,9 +2366,9 @@ async function handleDownloadMoodle() {
       URL.revokeObjectURL(link.href);
       link.remove();
     });
-    animateAction(moodleBtn, "Paquete Moodle ✓");
+    animateAction(moodleBtn, translate("actions.moodleSuccess"));
   } catch (error) {
-    animateAction(moodleBtn, "Error al generar", true);
+    animateAction(moodleBtn, translate("actions.moodleError"), true);
     console.error("No se pudo generar el paquete Moodle:", error);
   }
 }
@@ -1733,9 +2390,9 @@ function handleSaveDraft() {
       URL.revokeObjectURL(link.href);
       link.remove();
     });
-    animateAction(saveDraftBtn, "Borrador descargado ✓");
+    animateAction(saveDraftBtn, translate("actions.saveDraftSuccess"));
   } catch (error) {
-    animateAction(saveDraftBtn, "Error al guardar", true);
+    animateAction(saveDraftBtn, translate("actions.saveDraftError"), true);
     console.error("No se pudo exportar el borrador:", error);
   }
 }
@@ -1758,11 +2415,11 @@ function handleDraftFileChange(event) {
       const parsed = JSON.parse(typeof text === "string" ? text : "");
       applyDraftPayload(parsed, { skipPersist: false });
       if (loadDraftBtn) {
-        animateAction(loadDraftBtn, "Borrador cargado ✓");
+        animateAction(loadDraftBtn, translate("actions.loadDraftSuccess"));
       }
     } catch (error) {
       if (loadDraftBtn) {
-        animateAction(loadDraftBtn, "Error al cargar", true);
+        animateAction(loadDraftBtn, translate("actions.loadDraftError"), true);
       }
       console.error("No se pudo importar el borrador:", error);
     } finally {
@@ -1771,7 +2428,7 @@ function handleDraftFileChange(event) {
   };
   reader.onerror = () => {
     if (loadDraftBtn) {
-      animateAction(loadDraftBtn, "Error al cargar", true);
+      animateAction(loadDraftBtn, translate("actions.loadDraftError"), true);
     }
     console.error("No se pudo leer el archivo de borrador.");
     input.value = "";
@@ -1810,6 +2467,48 @@ function enhanceAccessibility() {
   });
 }
 
+function openMoodleModal(trigger) {
+  if (!moodleModal) {
+    performMoodleExport();
+    return;
+  }
+  if (!moodleModal.classList.contains("modal--hidden")) {
+    return;
+  }
+  lastModalTrigger = trigger || document.activeElement;
+  previousBodyOverflow = document.body.style.overflow;
+  document.body.style.overflow = "hidden";
+  moodleModal.classList.remove("modal--hidden");
+  moodleModal.setAttribute("aria-hidden", "false");
+  const focusTarget =
+    moodleModal.querySelector("[data-modal-focus]") || moodleModal.querySelector(".modal__content");
+  if (focusTarget && typeof focusTarget.focus === "function") {
+    focusTarget.focus({ preventScroll: true });
+  }
+}
+
+function closeMoodleModal() {
+  if (!moodleModal || moodleModal.classList.contains("modal--hidden")) {
+    return;
+  }
+  moodleModal.classList.add("modal--hidden");
+  moodleModal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = previousBodyOverflow;
+  previousBodyOverflow = "";
+  const toFocus = lastModalTrigger;
+  lastModalTrigger = null;
+  if (toFocus && typeof toFocus.focus === "function") {
+    toFocus.focus({ preventScroll: true });
+  }
+}
+
+function handleMoodleModalKeydown(event) {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeMoodleModal();
+  }
+}
+
 function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) {
     return;
@@ -1826,6 +2525,7 @@ function registerServiceWorker() {
 }
 
 function init() {
+  initializeLocale();
   restoreDraftFromStorage();
   syncForm();
   updatePreview();
@@ -1837,7 +2537,17 @@ function init() {
   copyBtn.addEventListener("click", handleCopyHtml);
   downloadBtn.addEventListener("click", handleDownloadHtml);
   if (moodleBtn) {
-    moodleBtn.addEventListener("click", handleDownloadMoodle);
+    moodleBtn.addEventListener("click", handleDownloadMoodleClick);
+  }
+  if (moodleModal) {
+    moodleModal.addEventListener("keydown", handleMoodleModalKeydown);
+    const closeElements = moodleModal.querySelectorAll("[data-modal-close]");
+    closeElements.forEach((element) => {
+      element.addEventListener("click", () => closeMoodleModal());
+    });
+  }
+  if (moodleExportConfirmBtn) {
+    moodleExportConfirmBtn.addEventListener("click", performMoodleExport);
   }
   if (saveDraftBtn) {
     saveDraftBtn.addEventListener("click", handleSaveDraft);
@@ -1847,6 +2557,11 @@ function init() {
   }
   if (loadDraftInput) {
     loadDraftInput.addEventListener("change", handleDraftFileChange);
+  }
+  if (languageSelect) {
+    languageSelect.addEventListener("change", (event) => {
+      setLocale(event.target.value);
+    });
   }
   setupResizableLayout();
   enhanceAccessibility();
