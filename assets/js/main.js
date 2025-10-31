@@ -29,7 +29,7 @@ const languageSelect = document.getElementById("language-select");
 const moodleModal = document.getElementById("moodle-modal");
 const moodleExportConfirmBtn = document.getElementById("moodle-export-confirm");
 
-const SERVICE_WORKER_VERSION = "v1.1.14";
+const SERVICE_WORKER_VERSION = "v1.1.16";
 const LANG_STORAGE_KEY = "eduwebquest:lang";
 let lastModalTrigger = null;
 let previousBodyOverflow = "";
@@ -102,8 +102,7 @@ const translations = {
       copySuccess: "Copiat ✓",
       copyFallback: "Còpia manual",
       downloadSuccess: "Descarregat ✓",
-      moodleUnavailable: "JSZip no disponible",
-      moodleSuccess: "Paquet Moodle ✓",
+      moodleSuccess: "Fitxer Moodle ✓",
       moodleError: "Error en generar",
       saveDraftSuccess: "Esborrany descarregat ✓",
       saveDraftError: "Error en guardar",
@@ -201,15 +200,15 @@ const translations = {
       close: "Tanca la finestra",
       title: "Com importar la teua WebQuest a Moodle",
       intro:
-        "El paquet IMS inclou la WebQuest i el manifest necessari per a Moodle. Seguix estos passos després de descarregar el fitxer ZIP:",
+        "El fitxer descarregat inclou la WebQuest com a index.html. Puja'l a Moodle com un recurs d'arxiu amb estes indicacions:",
       steps: [
         "En Moodle, accedeix al curs i activa el mode d'edició.",
-        'Fes clic en <strong>"Afig una activitat o un recurs"</strong> i tria <strong>"Contingut IMS"</strong>.',
-        "Puja el fitxer ZIP generat per l'exportador i guarda els canvis.",
-        "Assegura't d'activar l'opció de mostrar la taula de continguts per a facilitar la navegació entre seccions."
+        'Fes clic en <strong>"Afig una activitat o un recurs"</strong> i tria <strong>"Arxiu"</strong>.',
+        "Puja el fitxer index.html generat per l'exportador.",
+        'En "Aparença", selecciona "Obrir", "Incrustat" o "Obrir en finestra nova" segons preferisques i guarda.'
       ],
       note:
-        "Quan actualitzes la WebQuest, torna a exportar i substituïx el fitxer en Moodle per a vore els canvis."
+        "Quan actualitzes la WebQuest, torna a exportar i substituïx el fitxer index.html en Moodle per a vore els canvis."
     },
     ui: {
       process: {
@@ -258,8 +257,7 @@ const translations = {
       copySuccess: "Copiado ✓",
       copyFallback: "Copia manual",
       downloadSuccess: "Descargado ✓",
-      moodleUnavailable: "JSZip no disponible",
-      moodleSuccess: "Paquete Moodle ✓",
+      moodleSuccess: "Archivo Moodle ✓",
       moodleError: "Error al generar",
       saveDraftSuccess: "Borrador descargado ✓",
       saveDraftError: "Error al guardar",
@@ -357,15 +355,15 @@ const translations = {
       close: "Cerrar ventana",
       title: "Cómo importar tu WebQuest en Moodle",
       intro:
-        "El paquete IMS incluye la WebQuest y el manifiesto necesario para Moodle. Sigue estos pasos después de descargar el archivo ZIP:",
+        "El archivo descargado contiene la WebQuest como index.html. Súbelo a Moodle como recurso de archivo siguiendo estos pasos:",
       steps: [
         "En Moodle, accede al curso y activa el modo de edición.",
-        'Haz clic en <strong>"Añadir una actividad o un recurso"</strong> y elige <strong>"Contenido IMS"</strong>.',
-        "Sube el archivo ZIP generado por el exportador y guarda los cambios.",
-        "Asegúrate de activar la opción de mostrar la tabla de contenidos para facilitar la navegación entre secciones."
+        'Haz clic en <strong>"Añadir una actividad o un recurso"</strong> y elige <strong>"Archivo"</strong>.',
+        "Sube el archivo index.html generado por el exportador.",
+        'En "Apariencia", selecciona "Abrir", "Incrustado" o "Abrir en ventana nueva" según prefieras y guarda.'
       ],
       note:
-        "Cuando actualices la WebQuest, vuelve a exportar y sustituye el archivo en Moodle para ver los cambios."
+        "Cuando actualices la WebQuest, vuelve a exportar y sustituye el archivo index.html en Moodle para ver los cambios."
     },
     ui: {
       process: {
@@ -414,8 +412,7 @@ const translations = {
       copySuccess: "Copied ✓",
       copyFallback: "Copy manually",
       downloadSuccess: "Downloaded ✓",
-      moodleUnavailable: "JSZip unavailable",
-      moodleSuccess: "Moodle package ✓",
+      moodleSuccess: "Moodle file ✓",
       moodleError: "Export failed",
       saveDraftSuccess: "Draft downloaded ✓",
       saveDraftError: "Save error",
@@ -513,15 +510,15 @@ const translations = {
       close: "Close dialog",
       title: "How to import your WebQuest into Moodle",
       intro:
-        "The IMS package includes the WebQuest and the manifest Moodle needs. Follow these steps after downloading the ZIP file:",
+        "The download contains your WebQuest as index.html. Upload it to Moodle as a File resource with the guidance below:",
       steps: [
         "In Moodle, open the course and turn editing on.",
-        'Click <strong>"Add an activity or resource"</strong> and choose <strong>"IMS content"</strong>.',
-        "Upload the ZIP file generated by the exporter and save.",
-        "Enable the table of contents option so learners can jump between sections."
+        'Click <strong>"Add an activity or resource"</strong> and choose <strong>"File"</strong>.',
+        "Upload the generated index.html file.",
+        'In "Appearance", pick "Open", "Embed", or "Open in new window", then save.'
       ],
       note:
-        "Whenever you update the WebQuest, export again and replace the file in Moodle to see the changes."
+        "Whenever you update the WebQuest, export again and replace the index.html file in Moodle to see the changes."
     },
     ui: {
       process: {
@@ -1803,86 +1800,6 @@ function setupResizableLayout() {
   }
 }
 
-function buildMoodleManifest(title, entryFile, sections = []) {
-  const slug = slugify(title) || "webquest";
-  const timestamp = Date.now();
-  const manifestId = `MANIFEST-${slug}-${timestamp}`;
-  const organizationId = `ORG-${slug}`.toUpperCase();
-  const itemId = `ITEM-${slug}`.toUpperCase();
-  const resourceId = `RES-${slug}`.toUpperCase();
-  const safeTitle = escapeXml(title);
-  const safeEntry = escapeXml(entryFile);
-  const tocItems = Array.isArray(sections)
-    ? sections
-        .map((section, index) => {
-          const rawId =
-            typeof section?.id === "string" && section.id.trim()
-              ? section.id.trim()
-              : `section-${index + 1}`;
-          const sectionId = rawId;
-          const rawAnchor =
-            typeof section?.anchorId === "string" && section.anchorId.trim()
-              ? section.anchorId.trim()
-              : "";
-          const anchorFragment = rawAnchor ? `#${encodeURIComponent(rawAnchor)}` : "";
-          const sectionTitle =
-            typeof section?.title === "string" && section.title.trim()
-              ? section.title.trim()
-              : `Sección ${index + 1}`;
-          const childId =
-            typeof section?.manifestItemId === "string" && section.manifestItemId.trim()
-              ? section.manifestItemId.trim()
-              : `${itemId}-S${index + 1}`;
-          section.manifestItemId = childId;
-          const parameters = anchorFragment;
-          return `<item identifier="${escapeXml(childId)}" identifierref="${escapeXml(
-            resourceId
-          )}" adlcp:parameters="${escapeXml(parameters)}">
-        <title>${escapeXml(sectionTitle)}</title>
-      </item>`;
-        })
-        .join("")
-    : "";
-  const organizationItems = tocItems
-    ? `<item identifier="${escapeXml(itemId)}" identifierref="${escapeXml(resourceId)}">
-      <title>${safeTitle}</title>
-      ${tocItems}
-    </item>`
-    : `<item identifier="${escapeXml(itemId)}" identifierref="${escapeXml(resourceId)}">
-      <title>${safeTitle}</title>
-    </item>`;
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<manifest identifier="${escapeXml(manifestId)}" version="1.1"
-  xmlns="http://www.imsglobal.org/xsd/imscp_v1p1"
-  xmlns:imsmd="http://www.imsglobal.org/xsd/imsmd_v1p2"
-  xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_v1p3"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.imsglobal.org/xsd/imscp_v1p1 imscp_v1p1.xsd">
-  <metadata>
-    <schema>IMS Content</schema>
-    <schemaversion>1.1.4</schemaversion>
-    <imsmd:lom>
-      <imsmd:general>
-        <imsmd:title>
-          <imsmd:string>${safeTitle}</imsmd:string>
-        </imsmd:title>
-      </imsmd:general>
-    </imsmd:lom>
-  </metadata>
-  <organizations default="${escapeXml(organizationId)}">
-    <organization identifier="${escapeXml(organizationId)}">
-      <title>${safeTitle}</title>
-      ${organizationItems}
-    </organization>
-  </organizations>
-  <resources>
-    <resource identifier="${escapeXml(resourceId)}" type="webcontent" href="${safeEntry}">
-      <file href="${safeEntry}" />
-    </resource>
-  </resources>
-</manifest>`;
-}
-
 function getRenderData(options = {}) {
   const { isMoodle = false, locale = currentLocale } = options;
   const dict = getTranslationDict(locale);
@@ -2450,29 +2367,15 @@ function handleDownloadMoodleClick(event) {
   }
 }
 
-async function performMoodleExport() {
+function performMoodleExport() {
   if (!moodleBtn) return;
   closeMoodleModal();
-  if (typeof window.JSZip === "undefined") {
-    animateAction(moodleBtn, translate("actions.moodleUnavailable"), true);
-    console.warn("JSZip no está cargado. Verifica la conexión o el script CDN.");
-    return;
-  }
-
-  const zip = new window.JSZip();
-  const data = getRenderData({ isMoodle: true, locale: currentLocale });
-  const html = renderTemplate(templateSource, data).trim();
-  const entryFile = "index.html";
-  const title = getTitle();
-  const manifest = buildMoodleManifest(title, entryFile, data.sections);
-  zip.file(entryFile, html);
-  zip.file("imsmanifest.xml", manifest);
-
   try {
-    const blob = await zip.generateAsync({ type: "blob" });
+    const html = buildExportHtml({ isMoodle: true });
+    const blob = new Blob([html], { type: "text/html" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${getDownloadSlug()}-moodle.zip`;
+    link.download = "index.html";
     document.body.appendChild(link);
     link.click();
     requestAnimationFrame(() => {
@@ -2482,7 +2385,7 @@ async function performMoodleExport() {
     animateAction(moodleBtn, translate("actions.moodleSuccess"));
   } catch (error) {
     animateAction(moodleBtn, translate("actions.moodleError"), true);
-    console.error("No se pudo generar el paquete Moodle:", error);
+    console.error("No se pudo generar el archivo para Moodle:", error);
   }
 }
 
