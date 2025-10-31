@@ -1,0 +1,106 @@
+      <!DOCTYPE html>
+      <html lang="{{t.htmlLang}}">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>{{title}}</title>
+          <style>{{{previewStyles}}}</style>
+          <link
+            rel="preconnect"
+            href="https://fonts.googleapis.com"
+          />
+          <link
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossorigin
+          />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap"
+            rel="stylesheet"
+          />
+        </head>
+        <body>
+          <header class="hero">
+            <div class="hero__content">
+              <h1>{{title}}</h1>
+              {{#subtitleHtml}}<p>{{{subtitleHtml}}}</p>{{/subtitleHtml}}
+            </div>
+            {{#heroImage}}
+            <div class="hero-image">
+              <img src="{{heroImage}}" alt="">
+            </div>
+            {{/heroImage}}
+          </header>
+          <main class="{{layoutClass}}">
+            {{#showSidebar}}
+            <nav class="sidebar" aria-label="{{t.sidebarAria}}">
+              <h2>{{t.sidebarTitle}}</h2>
+              <ul>
+                {{#sections}}
+                <li><a href="#{{id}}" data-section-target="{{id}}">{{title}}</a></li>
+                {{/sections}}
+              </ul>
+            </nav>
+            {{/showSidebar}}
+            <div class="pages">
+              {{#sections}}
+              <article
+                class="page"
+                data-section="{{id}}"
+                id="{{id}}"
+                data-section-index="{{position}}"
+                {{#manifestItemId}}data-toc-id="{{manifestItemId}}"{{/manifestItemId}}
+              >
+                <h2>{{title}}</h2>
+                {{#isMoodle}}
+                <div id="{{anchorId}}" class="page__anchor-target" data-section-anchor></div>
+                {{/isMoodle}}
+                {{#isRich}}
+                <div class="page__body">
+                  {{{body}}}
+                </div>
+                {{/isRich}}
+                {{#isProcess}}
+                <ol class="process">
+                  {{#process}}
+                  <li>{{{.}}}</li>
+                  {{/process}}
+                </ol>
+                {{/isProcess}}
+                {{#isResources}}
+                <div class="resource-grid">
+                  {{#resources}}
+                  <article class="resource-card">
+                    <h3>{{title}}</h3>
+                    {{#notesHtml}}
+                    <div class="resource-card__notes">
+                      {{{.}}}
+                    </div>
+                    {{/notesHtml}}
+                    <a href="{{link}}" target="_blank" rel="noopener">
+                      {{t.visitResource}}
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  </article>
+                  {{/resources}}
+                </div>
+                {{/isResources}}
+                {{#next}}
+                <div class="page__nav">
+                  <a class="page__next" href="#{{id}}" data-next-target="{{id}}">
+                    {{text}} <span aria-hidden="true">&rarr;</span>
+                  </a>
+                </div>
+                {{/next}}
+              </article>
+              {{/sections}}
+            </div>
+          </main>
+          {{#credits}}
+          <footer>
+            <p>{{t.footerPrefix}} {{credits}}</p>
+          </footer>
+          {{/credits}}
+          <script>{{{previewScript}}}</script>
+        </body>
+      </html>

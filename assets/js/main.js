@@ -14,7 +14,13 @@ const moodleBtn = document.getElementById("btn-download-moodle");
 const saveDraftBtn = document.getElementById("btn-save-draft");
 const loadDraftBtn = document.getElementById("btn-load-draft");
 const loadDraftInput = document.getElementById("input-load-draft");
-const templateSource = document.getElementById("preview-template").innerHTML.trim();
+const templateElement = document.getElementById("preview-template");
+let templateSource = templateElement?.innerHTML.trim() ?? "";
+let previewStyles = "";
+let previewScript = "";
+const TEMPLATE_URL = "assets/preview-template.html";
+const PREVIEW_STYLE_URL = "assets/css/preview.css";
+const PREVIEW_SCRIPT_URL = "assets/js/preview.js";
 const layout = document.querySelector(".layout");
 const formPanel = document.querySelector(".panel--form");
 const previewPanel = document.querySelector(".panel--preview");
@@ -23,10 +29,59 @@ const languageSelect = document.getElementById("language-select");
 const moodleModal = document.getElementById("moodle-modal");
 const moodleExportConfirmBtn = document.getElementById("moodle-export-confirm");
 
-const SERVICE_WORKER_VERSION = "v1.1.11";
+const SERVICE_WORKER_VERSION = "v1.1.12";
 const LANG_STORAGE_KEY = "eduwebquest:lang";
 let lastModalTrigger = null;
 let previousBodyOverflow = "";
+
+async function loadTemplateSource() {
+  if (!templateElement) {
+    templateSource = "";
+    previewStyles = "";
+    previewScript = "";
+    return;
+  }
+  if (templateSource && previewStyles && previewScript) {
+    return;
+  }
+  try {
+    const [templateResp, styleResp, scriptResp] = await Promise.all([
+      fetch(TEMPLATE_URL, { cache: "no-cache" }),
+      fetch(PREVIEW_STYLE_URL, { cache: "no-cache" }),
+      fetch(PREVIEW_SCRIPT_URL, { cache: "no-cache" })
+    ]);
+
+    if (!templateResp.ok) {
+      throw new Error(`HTTP ${templateResp.status}`);
+    }
+    if (!styleResp.ok) {
+      throw new Error(`HTTP ${styleResp.status}`);
+    }
+    if (!scriptResp.ok) {
+      throw new Error(`HTTP ${scriptResp.status}`);
+    }
+
+    const [templateText, styleText, scriptText] = await Promise.all([
+      templateResp.text(),
+      styleResp.text(),
+      scriptResp.text()
+    ]);
+
+    templateElement.innerHTML = templateText;
+    templateSource = templateText.trim();
+    previewStyles = styleText.trim();
+    previewScript = scriptText.trim();
+  } catch (error) {
+    console.error("No se pudo cargar la plantilla de vista prèvia:", error);
+    templateSource = templateElement.innerHTML.trim();
+    if (!templateSource) {
+      templateSource =
+        "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><title>WebQuest</title></head><body><main><p>Preview unavailable.</p></main></body></html>";
+    }
+    previewStyles = previewStyles || "";
+    previewScript = previewScript || "";
+  }
+}
 
 const translations = {
   ca: {
@@ -1964,11 +2019,16 @@ function getRenderData(options = {}) {
       sidebarAria: dict.preview.sidebarAria,
       visitResource: dict.preview.visitResource,
       footerPrefix: dict.preview.footerPrefix
-    }
+    },
+    previewStyles,
+    previewScript
   };
 }
 
 function updatePreview() {
+  if (!templateSource) {
+    return;
+  }
   const data = getRenderData({ locale: currentLocale });
   const html = renderTemplate(templateSource, data);
   previewFrame.srcdoc = html;
@@ -2338,6 +2398,10 @@ function handleResourceClick(event) {
 }
 
 function buildExportHtml(options = {}) {
+  if (!templateSource) {
+    console.warn("La plantilla de vista prèvia no està disponible.");
+    return "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><title>WebQuest</title></head><body></body></html>";
+  }
   const data = getRenderData({ locale: currentLocale, ...options });
   const html = renderTemplate(templateSource, data);
   return html.trim();
@@ -2569,7 +2633,8 @@ function registerServiceWorker() {
   });
 }
 
-function init() {
+async function init() {
+  await loadTemplateSource();
   initializeLocale();
   restoreDraftFromStorage();
   syncForm();
@@ -2613,4 +2678,8 @@ function init() {
   registerServiceWorker();
 }
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", () => {
+  init().catch((error) => {
+    console.error("Error inicializando l'aplicació:", error);
+  });
+});
