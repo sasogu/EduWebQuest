@@ -39,11 +39,14 @@
                 <button
                   class="sidebar__toggle"
                   type="button"
-                  data-sidebar-toggle
-                  aria-expanded="false"
-                  aria-controls="sidebar-panel"
-                >
-                  <span data-sidebar-toggle-label>{{t.sidebarToggle}}</span>
+                data-sidebar-toggle
+                aria-expanded="false"
+                aria-controls="sidebar-panel"
+              >
+                  <span class="sidebar__toggle-text">
+                    <span class="sidebar__toggle-label" data-sidebar-toggle-label>{{t.sidebarToggle}}</span>
+                    <span class="sidebar__toggle-active" data-sidebar-toggle-active></span>
+                  </span>
                   <span class="sidebar__toggle-icon" aria-hidden="true">▾</span>
                 </button>
               </div>

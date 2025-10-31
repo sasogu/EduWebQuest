@@ -135,6 +135,30 @@
               outline: none;
               box-shadow: 0 0 0 3px rgba(67, 85, 250, 0.25);
             }
+            .sidebar__toggle-text {
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              line-height: 1.2;
+              gap: 0.15rem;
+            }
+            .sidebar__toggle-label {
+              font-size: 0.72rem;
+              letter-spacing: 0.08em;
+              text-transform: uppercase;
+              opacity: 0.75;
+            }
+            .sidebar__toggle-active {
+              font-size: 1rem;
+              font-weight: 600;
+              color: inherit;
+            }
+            .sidebar__toggle:not(.has-active) .sidebar__toggle-active {
+              display: none;
+            }
+            .sidebar__toggle.has-active .sidebar__toggle-label {
+              opacity: 0.6;
+            }
             .sidebar__toggle-icon {
               transition: transform 0.2s ease;
             }
@@ -434,7 +458,10 @@
                 gap: 0.65rem;
               }
               .sidebar__toggle {
-                display: inline-flex;
+                display: flex;
+                width: 100%;
+                justify-content: space-between;
+                align-items: center;
               }
               .sidebar__panel {
                 display: none;

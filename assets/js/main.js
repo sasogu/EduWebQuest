@@ -29,7 +29,7 @@ const languageSelect = document.getElementById("language-select");
 const moodleModal = document.getElementById("moodle-modal");
 const moodleExportConfirmBtn = document.getElementById("moodle-export-confirm");
 
-const SERVICE_WORKER_VERSION = "v1.1.16";
+const SERVICE_WORKER_VERSION = "v1.1.17";
 const LANG_STORAGE_KEY = "eduwebquest:lang";
 let lastModalTrigger = null;
 let previousBodyOverflow = "";

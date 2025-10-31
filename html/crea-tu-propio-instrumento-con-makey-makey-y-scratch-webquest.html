@@ -1,8 +1,10 @@
-<meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!DOCTYPE html>
+      <html lang="es">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <title>¡Crea tu propio instrumento con Makey Makey y Scratch!</title>
-          <style>
-            :root {
+          <style>:root {
               --primary: #4355fa;
               --primary-transparent: #4355fa1a;
               --surface: #ffffff;
@@ -101,12 +103,76 @@
               position: sticky;
               top: 1.75rem;
               align-self: start;
+              display: flex;
+              flex-direction: column;
+              gap: 1.5rem;
             }
-            .sidebar h2 {
-              margin: 0 0 1.5rem;
+            .sidebar__header {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 1rem;
+            }
+            .sidebar__header h2 {
+              margin: 0;
               font-size: 1.2rem;
               font-weight: 600;
               color: var(--text);
+            }
+            .sidebar__toggle {
+              display: none;
+              align-items: center;
+              gap: 0.5rem;
+              border: 1px solid rgba(67, 85, 250, 0.2);
+              border-radius: 999px;
+              background: rgba(67, 85, 250, 0.08);
+              color: var(--primary);
+              font-weight: 600;
+              font-size: 0.95rem;
+              padding: 0.5rem 0.9rem;
+              cursor: pointer;
+              transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+            }
+            .sidebar__toggle:hover,
+            .sidebar__toggle:focus-visible {
+              background: var(--primary);
+              color: #fff;
+              border-color: var(--primary);
+              outline: none;
+              box-shadow: 0 0 0 3px rgba(67, 85, 250, 0.25);
+            }
+            .sidebar__toggle-text {
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              line-height: 1.2;
+              gap: 0.15rem;
+            }
+            .sidebar__toggle-label {
+              font-size: 0.72rem;
+              letter-spacing: 0.08em;
+              text-transform: uppercase;
+              opacity: 0.75;
+            }
+            .sidebar__toggle-active {
+              font-size: 1rem;
+              font-weight: 600;
+              color: inherit;
+            }
+            .sidebar__toggle:not(.has-active) .sidebar__toggle-active {
+              display: none;
+            }
+            .sidebar__toggle.has-active .sidebar__toggle-label {
+              opacity: 0.6;
+            }
+            .sidebar__toggle-icon {
+              transition: transform 0.2s ease;
+            }
+            .sidebar--expanded .sidebar__toggle-icon {
+              transform: rotate(180deg);
+            }
+            .sidebar__panel {
+              display: block;
             }
             .sidebar ul {
               list-style: none;
@@ -147,12 +213,19 @@
               padding: 2.5rem;
               box-shadow: 0 24px 60px -38px rgba(18, 22, 33, 0.85);
               animation: fadeIn 0.35s ease both;
+              scroll-margin-top: 120px;
             }
             .page.is-active {
               display: block;
             }
             .main-layout--single .page {
               display: block;
+            }
+            .page__anchor-target {
+              display: block;
+              height: 0;
+              width: 100%;
+              pointer-events: none;
             }
             .page h2 {
               margin: 0 0 1.5rem;
@@ -340,10 +413,17 @@
               }
               .sidebar {
                 position: static;
-                padding: 1.25rem;
-                display: flex;
-                flex-direction: column;
+                padding: 1.35rem 1.1rem;
                 gap: 1rem;
+              }
+              .sidebar__header {
+                align-items: flex-start;
+              }
+              .sidebar__toggle {
+                display: none;
+              }
+              .sidebar__panel {
+                display: block;
               }
               .sidebar ul {
                 display: flex;
@@ -375,16 +455,57 @@
                 margin: -2rem auto 2rem;
                 padding: 0 0.85rem;
               }
+              .sidebar {
+                padding: 1.1rem;
+                gap: 0.75rem;
+              }
+              .sidebar__header {
+                flex-wrap: wrap;
+                gap: 0.65rem;
+              }
+              .sidebar__toggle {
+                display: flex;
+                width: 100%;
+                justify-content: space-between;
+                align-items: center;
+              }
+              .sidebar__panel {
+                display: none;
+                width: 100%;
+                border-top: 1px solid rgba(67, 85, 250, 0.16);
+                padding-top: 0.8rem;
+              }
+              .sidebar--expanded .sidebar__panel {
+                display: block;
+              }
+              .sidebar ul {
+                display: grid;
+                gap: 0.65rem;
+                overflow: visible;
+                padding-bottom: 0;
+              }
+              .sidebar li {
+                flex: initial;
+              }
               .page {
                 padding: 2rem 1.5rem;
               }
-            }
-          </style>
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:wght@600&amp;display=swap" rel="stylesheet">
-        
-        
+            }</style>
+          <link
+            rel="preconnect"
+            href="https://fonts.googleapis.com"
+          />
+          <link
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossorigin
+          />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap"
+            rel="stylesheet"
+          />
+        </head>
+        <body>
           <header class="hero">
             <div class="hero__content">
               <h1>¡Crea tu propio instrumento con Makey Makey y Scratch!</h1>
@@ -397,28 +518,54 @@
             
           </header>
           <main class="main-layout">
-            <nav class="sidebar" aria-label="Secciones de la WebQuest">
-              <h2>Secciones</h2>
-              <ul>
-                
-                <li><a href="#introduccion" data-section-target="introduccion">Introducción</a></li>
-                
-                <li><a href="#tarea" data-section-target="tarea">Tarea</a></li>
-                
-                <li><a href="#proceso" data-section-target="proceso">Proceso</a></li>
-                
-                <li><a href="#recursos" data-section-target="recursos">Recursos</a></li>
-                
-                <li><a href="#evaluacion" data-section-target="evaluacion">Evaluación</a></li>
-                
-                <li><a href="#conclusion" data-section-target="conclusion">Conclusión</a></li>
-                
-              </ul>
+            
+            <nav class="sidebar" aria-label="Secciones de la WebQuest" data-sidebar>
+              <div class="sidebar__header">
+                <h2>Secciones</h2>
+                <button
+                  class="sidebar__toggle"
+                  type="button"
+                data-sidebar-toggle
+                aria-expanded="false"
+                aria-controls="sidebar-panel"
+              >
+                  <span class="sidebar__toggle-text">
+                    <span class="sidebar__toggle-label" data-sidebar-toggle-label>Menú de secciones</span>
+                    <span class="sidebar__toggle-active" data-sidebar-toggle-active></span>
+                  </span>
+                  <span class="sidebar__toggle-icon" aria-hidden="true">▾</span>
+                </button>
+              </div>
+              <div class="sidebar__panel" id="sidebar-panel" data-sidebar-panel>
+                <ul>
+                  
+                  <li><a href="#introduccion" data-section-target="introduccion">Introducción</a></li>
+                  
+                  <li><a href="#tarea" data-section-target="tarea">Tarea</a></li>
+                  
+                  <li><a href="#proceso" data-section-target="proceso">Proceso</a></li>
+                  
+                  <li><a href="#recursos" data-section-target="recursos">Recursos</a></li>
+                  
+                  <li><a href="#evaluacion" data-section-target="evaluacion">Evaluación</a></li>
+                  
+                  <li><a href="#conclusion" data-section-target="conclusion">Conclusión</a></li>
+                  
+                </ul>
+              </div>
             </nav>
+            
             <div class="pages">
               
-              <article class="page" data-section="introduccion" id="introduccion">
+              <article
+                class="page"
+                data-section="introduccion"
+                id="introduccion"
+                data-section-index="1"
+                
+              >
                 <h2>Introducción</h2>
+                
                 
                 <div class="page__body">
                   <p>¿Alguna vez has soñado con crear tu propio instrumento musical?<br />En esta aventura tecnológica, te convertirás en inventor/a de sonidos. Con ayuda de Makey Makey y Scratch, vas a diseñar y programar un instrumento que funcione de verdad.</p><p>Descubrirás cómo la electricidad, la programación y la música pueden unirse para crear algo único. ¡Tú decidirás si será un piano de frutas, una batería de papel de aluminio o un arpa de agua!</p>
@@ -429,14 +576,21 @@
                 
                 <div class="page__nav">
                   <a class="page__next" href="#tarea" data-next-target="tarea">
-                    Siguiente: Tarea <span aria-hidden="true">→</span>
+                    Siguiente: Tarea <span aria-hidden="true">&rarr;</span>
                   </a>
                 </div>
                 
               </article>
               
-              <article class="page" data-section="tarea" id="tarea">
+              <article
+                class="page"
+                data-section="tarea"
+                id="tarea"
+                data-section-index="2"
+                
+              >
                 <h2>Tarea</h2>
+                
                 
                 <div class="page__body">
                   <p><strong>Tu misión será:</strong></p><p>Diseñar y construir un instrumento musical electrónico utilizando Makey Makey y Scratch, capaz de producir diferentes sonidos al tocarlo.</p><p><strong>Deberás:</strong></p><p>Elegir el tipo de instrumento (melódico, rítmico, experimental...).</p><p>Crear los sonidos o melodías en Scratch.</p><p>Conectar los materiales a Makey Makey para que funcione físicamente.</p><p>Presentar tu invento en clase, explicando cómo lo has hecho.</p><p>Al final, formarás parte de un concierto interactivo con los inventos de tus compañeros/as. 🎵</p>
@@ -447,14 +601,21 @@
                 
                 <div class="page__nav">
                   <a class="page__next" href="#proceso" data-next-target="proceso">
-                    Siguiente: Proceso <span aria-hidden="true">→</span>
+                    Siguiente: Proceso <span aria-hidden="true">&rarr;</span>
                   </a>
                 </div>
                 
               </article>
               
-              <article class="page" data-section="proceso" id="proceso">
+              <article
+                class="page"
+                data-section="proceso"
+                id="proceso"
+                data-section-index="3"
+                
+              >
                 <h2>Proceso</h2>
+                
                 
                 
                 <ol class="process">
@@ -475,14 +636,21 @@
                 
                 <div class="page__nav">
                   <a class="page__next" href="#recursos" data-next-target="recursos">
-                    Siguiente: Recursos <span aria-hidden="true">→</span>
+                    Siguiente: Recursos <span aria-hidden="true">&rarr;</span>
                   </a>
                 </div>
                 
               </article>
               
-              <article class="page" data-section="recursos" id="recursos">
+              <article
+                class="page"
+                data-section="recursos"
+                id="recursos"
+                data-section-index="4"
+                
+              >
                 <h2>Recursos</h2>
+                
                 
                 
                 
@@ -524,19 +692,35 @@
                     </a>
                   </article>
                   
+                  <article class="resource-card">
+                    <h3>Ideas para proyectos</h3>
+                    
+                    <a href="https://ar.pinterest.com/epcamrecursos/makey-makey/" target="_blank" rel="noopener">
+                      Visitar recurso
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  </article>
+                  
                 </div>
                 
                 
                 <div class="page__nav">
                   <a class="page__next" href="#evaluacion" data-next-target="evaluacion">
-                    Siguiente: Evaluación <span aria-hidden="true">→</span>
+                    Siguiente: Evaluación <span aria-hidden="true">&rarr;</span>
                   </a>
                 </div>
                 
               </article>
               
-              <article class="page" data-section="evaluacion" id="evaluacion">
+              <article
+                class="page"
+                data-section="evaluacion"
+                id="evaluacion"
+                data-section-index="5"
+                
+              >
                 <h2>Evaluación</h2>
+                
                 
                 <div class="page__body">
                   <h3>🧮 Evaluación</h3><table><thead><tr><th><strong>Criterio</strong></th><th><strong>Excelente (3)</strong></th><th><strong>Bien (2)</strong></th><th><strong>En proceso (1)</strong></th></tr></thead><tbody><tr><td><strong>Creatividad del instrumento</strong></td><td>Idea original y funcional</td><td>Idea interesante, pero poco innovadora</td><td>Copia o diseño poco elaborado</td></tr><tr><td><strong>Programación en Scratch</strong></td><td>Usa varios sonidos y bloques correctamente</td><td>Usa algunos sonidos básicos</td><td>Falta de coherencia en el código</td></tr><tr><td><strong>Funcionamiento físico (Makey Makey)</strong></td><td>Conexión estable y bien diseñada</td><td>Funciona, pero con fallos</td><td>No se logra hacer funcionar correctamente</td></tr><tr><td><strong>Trabajo en equipo</strong></td><td>Colabora activamente, aporta ideas</td><td>Colabora a veces</td><td>Participa poco</td></tr><tr><td><strong>Presentación final</strong></td><td>Clara, entusiasta y bien explicada</td><td>Aceptable, con algunas dudas</td><td>Poco clara o incompleta</td></tr></tbody></table>
@@ -547,14 +731,21 @@
                 
                 <div class="page__nav">
                   <a class="page__next" href="#conclusion" data-next-target="conclusion">
-                    Siguiente: Conclusión <span aria-hidden="true">→</span>
+                    Siguiente: Conclusión <span aria-hidden="true">&rarr;</span>
                   </a>
                 </div>
                 
               </article>
               
-              <article class="page" data-section="conclusion" id="conclusion">
+              <article
+                class="page"
+                data-section="conclusion"
+                id="conclusion"
+                data-section-index="6"
+                
+              >
                 <h2>Conclusión</h2>
+                
                 
                 <div class="page__body">
                   <p>Ahora sabes cómo programar sonidos, construir circuitos y crear música con tus propias manos. Has descubierto que la tecnología no solo sirve para consumir, ¡sino también para crear!</p><p>Piensa en otras ideas: ¿podrías construir un controlador para un videojuego? ¿O una alfombra que haga sonidos al pisarla?<br />El límite está en tu imaginación.</p><p><strong>Extensión opcional</strong></p><p>Para quienes quieran seguir explorando:</p><p>Crear una banda virtual combinando varios proyectos Scratch.</p><p>Grabar una pieza musical colectiva con todos los instrumentos inventados.</p><p>Investigar sobre artistas que mezclan música y tecnología, como Imogen Heap o Laurie Anderson.</p>
@@ -572,34 +763,121 @@
             <p>Creado por @sasogu - 2025</p>
           </footer>
           
-          <script>
-            (function () {
+          <script>(function () {
               const contentSections = Array.from(document.querySelectorAll('[data-section]'));
-              const navLinks = Array.from(document.querySelectorAll('.sidebar [data-section-target]'));
-              const nextLinks = Array.from(document.querySelectorAll('[data-next-target]'));
               if (!contentSections.length) {
                 return;
               }
-              const initialSearch = new URLSearchParams(window.location.search);
+
+              const sidebar = document.querySelector('[data-sidebar]');
+              const sidebarToggle = sidebar ? sidebar.querySelector('[data-sidebar-toggle]') : null;
+              const sidebarPanel = sidebar ? sidebar.querySelector('[data-sidebar-panel]') : null;
+              const sidebarToggleLabel = sidebarToggle
+                ? sidebarToggle.querySelector('[data-sidebar-toggle-label]')
+                : null;
+              const sidebarToggleActive = sidebarToggle
+                ? sidebarToggle.querySelector('[data-sidebar-toggle-active]')
+                : null;
+              const mobileBreakpoint =
+                typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+                  ? window.matchMedia('(max-width: 720px)')
+                  : null;
+              const defaultToggleLabel = sidebarToggleLabel ? sidebarToggleLabel.textContent.trim() : '';
+
+              const navLinks = Array.from(document.querySelectorAll('.sidebar [data-section-target]'));
+              const nextLinks = Array.from(document.querySelectorAll('[data-next-target]'));
               const hasTabs = navLinks.length > 0;
-              const preferParam = initialSearch.has('section') || !hasTabs;
+
+              if (!hasTabs) {
+                return;
+              }
+
+              const isMobile = () => (mobileBreakpoint ? mobileBreakpoint.matches : false);
+
+              function setSidebarState(open) {
+                if (!sidebar || !sidebarToggle || !sidebarPanel) {
+                  return;
+                }
+                sidebar.classList.toggle('sidebar--expanded', open);
+                sidebarToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (isMobile()) {
+                  if (open) {
+                    sidebarPanel.removeAttribute('hidden');
+                  } else {
+                    sidebarPanel.setAttribute('hidden', '');
+                  }
+                } else {
+                  sidebarPanel.removeAttribute('hidden');
+                }
+              }
+
+              function collapseSidebarIfMobile() {
+                if (isMobile()) {
+                  setSidebarState(false);
+                }
+              }
+
+              function updateSidebarToggleActive(activeLink) {
+                if (!sidebarToggle) {
+                  return;
+                }
+                const text = activeLink && activeLink.textContent ? activeLink.textContent.trim() : '';
+                if (sidebarToggleActive) {
+                  sidebarToggleActive.textContent = text;
+                }
+                sidebarToggle.classList.toggle('has-active', Boolean(text));
+                if (!text && sidebarToggleActive && defaultToggleLabel) {
+                  sidebarToggleActive.textContent = '';
+                }
+              }
+
+              if (sidebar && sidebarToggle && sidebarPanel) {
+                sidebarToggle.addEventListener('click', () => {
+                  const isExpanded = sidebar.classList.contains('sidebar--expanded');
+                  setSidebarState(!isExpanded);
+                });
+
+                if (mobileBreakpoint) {
+                  const handleBreakpointChange = (event) => {
+                    if (event.matches) {
+                      setSidebarState(false);
+                    } else {
+                      setSidebarState(true);
+                    }
+                  };
+                  if (typeof mobileBreakpoint.addEventListener === 'function') {
+                    mobileBreakpoint.addEventListener('change', handleBreakpointChange);
+                  } else if (typeof mobileBreakpoint.addListener === 'function') {
+                    mobileBreakpoint.addListener(handleBreakpointChange);
+                  }
+                  handleBreakpointChange(mobileBreakpoint);
+                } else {
+                  setSidebarState(true);
+                }
+              } else {
+                updateSidebarToggleActive(null);
+              }
+
+              const initialSearch = new URLSearchParams(window.location.search);
+              const preferParam = initialSearch.has('section');
+              const sectionAnchors = new Map();
+
+              contentSections.forEach((section) => {
+                const anchor = section.querySelector('[data-section-anchor]');
+                sectionAnchors.set(section.dataset.section, anchor ? anchor.id : '');
+              });
 
               function normalizeHash(hash) {
                 if (!hash) return '';
                 return decodeURIComponent(hash.replace('#', '').trim());
               }
 
-              if (!hasTabs) {
-                const paramId = preferParam ? initialSearch.get('section') : null;
-                const hashId = normalizeHash(window.location.hash);
-                const targetId = paramId || hashId;
-                if (targetId) {
-                  const targetSection = contentSections.find((section) => section.dataset.section === targetId);
-                  if (targetSection) {
-                    targetSection.scrollIntoView({ behavior: 'auto', block: 'start' });
-                  }
-                }
-                return;
+              function scrollToSection(section, behavior) {
+                if (!section) return;
+                const anchorId = sectionAnchors.get(section.dataset.section);
+                const anchorElement = anchorId ? document.getElementById(anchorId) : null;
+                const target = anchorElement || section;
+                target.scrollIntoView({ behavior, block: 'start' });
               }
 
               function activate(targetId, { scroll = false } = {}) {
@@ -608,23 +886,26 @@
                   current = contentSections[0];
                 }
                 if (!current) {
-                  return "";
+                  return '';
                 }
                 contentSections.forEach((section) => {
                   section.classList.toggle('is-active', section === current);
                 });
+                let activeLink = null;
                 navLinks.forEach((link) => {
                   const isActive = link.dataset.sectionTarget === current.dataset.section;
                   link.classList.toggle('is-active', isActive);
                   if (isActive) {
                     link.setAttribute('aria-current', 'page');
+                    activeLink = link;
                   } else {
                     link.removeAttribute('aria-current');
                   }
                 });
+                updateSidebarToggleActive(activeLink);
                 if (scroll) {
                   const behavior = scroll === 'auto' ? 'auto' : 'smooth';
-                  current.scrollIntoView({ behavior, block: 'start' });
+                  scrollToSection(current, behavior);
                 }
                 return current.dataset.section;
               }
@@ -674,6 +955,7 @@
                   event.preventDefault();
                   const targetId = link.dataset.sectionTarget;
                   goTo(targetId, { scroll: true });
+                  collapseSidebarIfMobile();
                 });
               });
 
@@ -699,5 +981,6 @@
               if (shouldScrollInitial) {
                 updateUrl(initialId);
               }
-            })();
-          </script>
+            })();</script>
+        </body>
+      </html>

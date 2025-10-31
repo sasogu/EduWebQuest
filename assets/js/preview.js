@@ -10,6 +10,9 @@
               const sidebarToggleLabel = sidebarToggle
                 ? sidebarToggle.querySelector('[data-sidebar-toggle-label]')
                 : null;
+              const sidebarToggleActive = sidebarToggle
+                ? sidebarToggle.querySelector('[data-sidebar-toggle-active]')
+                : null;
               const mobileBreakpoint =
                 typeof window !== 'undefined' && typeof window.matchMedia === 'function'
                   ? window.matchMedia('(max-width: 720px)')
@@ -49,15 +52,17 @@
                 }
               }
 
-              function updateSidebarToggleLabel(activeLink) {
-                if (!sidebarToggleLabel) {
+              function updateSidebarToggleActive(activeLink) {
+                if (!sidebarToggle) {
                   return;
                 }
                 const text = activeLink && activeLink.textContent ? activeLink.textContent.trim() : '';
-                if (text) {
-                  sidebarToggleLabel.textContent = text;
-                } else if (defaultToggleLabel) {
-                  sidebarToggleLabel.textContent = defaultToggleLabel;
+                if (sidebarToggleActive) {
+                  sidebarToggleActive.textContent = text;
+                }
+                sidebarToggle.classList.toggle('has-active', Boolean(text));
+                if (!text && sidebarToggleActive && defaultToggleLabel) {
+                  sidebarToggleActive.textContent = '';
                 }
               }
 
@@ -85,7 +90,7 @@
                   setSidebarState(true);
                 }
               } else {
-                updateSidebarToggleLabel(null);
+                updateSidebarToggleActive(null);
               }
 
               const initialSearch = new URLSearchParams(window.location.search);
@@ -132,7 +137,7 @@
                     link.removeAttribute('aria-current');
                   }
                 });
-                updateSidebarToggleLabel(activeLink);
+                updateSidebarToggleActive(activeLink);
                 if (scroll) {
                   const behavior = scroll === 'auto' ? 'auto' : 'smooth';
                   scrollToSection(current, behavior);
