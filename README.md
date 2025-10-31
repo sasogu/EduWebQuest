@@ -21,6 +21,10 @@ Només cal un navegador modern. Per desenvolupar i servir l'aplicació en local 
 3. Fes canvis en els fitxers d'`assets/css` i `assets/js` i recarrega la pàgina.
 4. Per compartir exemples exportats, col·loca els HTML a la carpeta `html/`, registra'ls en `html/examples.json` i l'índex es generarà automàticament al visitar `html/index.html`.
 
+## Publicació
+
+Pots utilitzar la versió en producció a GitHub Pages: https://sasogu.github.io/EduWebQuest/
+
 ## Licència
 
 Vore l'arxiu [LICENSE](LICENSE).
