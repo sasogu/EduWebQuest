@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v1.1.22";
+const CACHE_VERSION = "v1.1.25";
 const CACHE_PREFIX = "eduwebquest-cache";
 const CACHE_NAME = `${CACHE_PREFIX}-${CACHE_VERSION}`;
 
@@ -13,7 +13,8 @@ const CORE_ASSETS = [
   "./assets/js/main.js",
   "./assets/js/preview.js",
   "./assets/preview-template.html",
-  "./assets/icon.svg"
+  "./assets/icon.svg",
+  "./assets/icon-maskable.svg"
 ];
 
 self.addEventListener("install", (event) => {

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="EduWebQuest – Brújula">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="EduWebQuest – Brújula (maskable)">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#4355fa" />
@@ -9,36 +9,27 @@
     </filter>
   </defs>
 
-  <!-- Base -->
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
 
-  <!-- Brújula centrada con márgenes seguros -->
-  <g transform="translate(64,64)" filter="url(#softShadow)">
-    <!-- Aro exterior -->
+  <!-- Misma brújula con más padding para máscaras adaptativas -->
+  <g transform="translate(84,84) scale(0.82)" filter="url(#softShadow)">
     <circle cx="192" cy="192" r="160" fill="rgba(255,255,255,0.18)" stroke="#ffffff" stroke-opacity="0.95" stroke-width="10"/>
-    <!-- Dial -->
     <circle cx="192" cy="192" r="132" fill="#ffffff" fill-opacity="0.96"/>
-    <!-- Marcas cardinales simples -->
     <g stroke="#0f172a" stroke-opacity="0.35" stroke-linecap="round">
       <line x1="192" y1="72" x2="192" y2="92" stroke-width="8"/>
       <line x1="192" y1="292" x2="192" y2="312" stroke-width="8"/>
       <line x1="72" y1="192" x2="92" y2="192" stroke-width="8"/>
       <line x1="292" y1="192" x2="312" y2="192" stroke-width="8"/>
     </g>
-    <!-- Marcas menores -->
     <g stroke="#0f172a" stroke-opacity="0.18" stroke-linecap="round">
       <line x1="192" y1="96" x2="192" y2="108" stroke-width="6"/>
       <line x1="192" y1="276" x2="192" y2="288" stroke-width="6"/>
       <line x1="108" y1="192" x2="120" y2="192" stroke-width="6"/>
       <line x1="264" y1="192" x2="276" y2="192" stroke-width="6"/>
     </g>
-    <!-- Aguja (roja/azul) -->
     <g transform="translate(192,192)">
-      <!-- Norte (rojo) -->
       <polygon points="0,-96 12,-16 -12,-16" fill="#ef4444"/>
-      <!-- Sur (azul) -->
       <polygon points="0,96 12,16 -12,16" fill="#3b82f6"/>
-      <!-- Casquillo central -->
       <circle cx="0" cy="0" r="10" fill="#0f172a" fill-opacity="0.7"/>
       <circle cx="0" cy="0" r="4" fill="#ffffff"/>
     </g>
