@@ -201,15 +201,15 @@ const translations = {
       close: "Tanca la finestra",
       title: "Com importar la teua WebQuest a Moodle",
       intro:
-        "El fitxer descarregat inclou la WebQuest com a index.html. Puja'l a Moodle com un recurs d'arxiu amb estes indicacions:",
+        "El fitxer descarregat inclou la WebQuest en format html. Puja'l a Moodle com un recurs d'arxiu amb estes indicacions:",
       steps: [
         "En Moodle, accedeix al curs i activa el mode d'edició.",
         'Fes clic en <strong>"Afig una activitat o un recurs"</strong> i tria <strong>"Arxiu"</strong>.',
-        "Puja el fitxer index.html generat per l'exportador.",
+        "Puja el fitxer html generat per l'exportador.",
         'En "Aparença", selecciona "Obrir", "Incrustat" o "Obrir en finestra nova" segons preferisques i guarda.'
       ],
       note:
-        "Quan actualitzes la WebQuest, torna a exportar i substituïx el fitxer index.html en Moodle per a vore els canvis."
+        "Quan actualitzes la WebQuest, torna a exportar i substituïx el fitxer html en Moodle per a vore els canvis."
     },
     ui: {
       process: {
@@ -357,15 +357,15 @@ const translations = {
       close: "Cerrar ventana",
       title: "Cómo importar tu WebQuest en Moodle",
       intro:
-        "El archivo descargado contiene la WebQuest como index.html. Súbelo a Moodle como recurso de archivo siguiendo estos pasos:",
+        "El archivo descargado contiene la WebQuest en formato html. Súbelo a Moodle como recurso de archivo siguiendo estos pasos:",
       steps: [
         "En Moodle, accede al curso y activa el modo de edición.",
         'Haz clic en <strong>"Añadir una actividad o un recurso"</strong> y elige <strong>"Archivo"</strong>.',
-        "Sube el archivo index.html generado por el exportador.",
+        "Sube el archivo html generado por el exportador.",
         'En "Apariencia", selecciona "Abrir", "Incrustado" o "Abrir en ventana nueva" según prefieras y guarda.'
       ],
       note:
-        "Cuando actualices la WebQuest, vuelve a exportar y sustituye el archivo index.html en Moodle para ver los cambios."
+        "Cuando actualices la WebQuest, vuelve a exportar y sustituye el archivo html en Moodle para ver los cambios."
     },
     ui: {
       process: {
@@ -513,15 +513,15 @@ const translations = {
       close: "Close dialog",
       title: "How to import your WebQuest into Moodle",
       intro:
-        "The download contains your WebQuest as index.html. Upload it to Moodle as a File resource with the guidance below:",
+        "The download contains your WebQuest as html. Upload it to Moodle as a File resource with the guidance below:",
       steps: [
         "In Moodle, open the course and turn editing on.",
         'Click <strong>"Add an activity or resource"</strong> and choose <strong>"File"</strong>.',
-        "Upload the generated index.html file.",
+        "Upload the generated html file.",
         'In "Appearance", pick "Open", "Embed", or "Open in new window", then save.'
       ],
       note:
-        "Whenever you update the WebQuest, export again and replace the index.html file in Moodle to see the changes."
+        "Whenever you update the WebQuest, export again and replace the html file in Moodle to see the changes."
     },
     ui: {
       process: {
@@ -2347,7 +2347,7 @@ function handleDownloadHtml() {
   const blob = new Blob([html], { type: "text/html" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  const fileName = `${getDownloadSlug()}-webquest.html`;
+  const fileName = `${getDownloadSlug()}.html`;
   link.download = fileName;
   document.body.appendChild(link);
   link.click();
@@ -2376,9 +2376,10 @@ function performMoodleExport() {
   try {
     const html = buildExportHtml({ isMoodle: true });
     const blob = new Blob([html], { type: "text/html" });
+    const fileName = `${getDownloadSlug()}.html`;
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "index.html";
+    link.download = `${fileName}`;
     document.body.appendChild(link);
     link.click();
     requestAnimationFrame(() => {
